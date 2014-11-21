@@ -15,16 +15,16 @@ using System.Windows.Shapes;
 
 namespace NetworkUI
 {
-	internal class NodeItemsControl : ListBox
+	internal class LinkItemsControl : ListBox
 	{
 		#region Constructor
 
-		static NodeItemsControl()
+		static LinkItemsControl()
 		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(NodeItemsControl), new FrameworkPropertyMetadata(typeof(NodeItemsControl)));
+			DefaultStyleKeyProperty.OverrideMetadata(typeof(LinkItemsControl), new FrameworkPropertyMetadata(typeof(LinkItemsControl)));
 		}
 
-		public NodeItemsControl()
+		public LinkItemsControl()
 		{
 			Focusable = false;
 		}
@@ -38,16 +38,16 @@ namespace NetworkUI
 		/// </summary>
 		protected override DependencyObject GetContainerForItemOverride()
 		{
-			return new NodeItem();
+			return new LinkItem();
 		}
 
 		/// <summary>
 		/// Find the NodeItem UI element that has the specified data context.
 		/// Return null if no such NodeItem exists.
 		/// </summary>
-		internal NodeItem FindAssociatedNodeItem(object nodeDataContext)
+		internal LinkItem FindAssociatedNodeItem(object nodeDataContext)
 		{
-			return (NodeItem)this.ItemContainerGenerator.ContainerFromItem(nodeDataContext);
+			return (LinkItem)this.ItemContainerGenerator.ContainerFromItem(nodeDataContext);
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace NetworkUI
 		/// </summary>
 		protected override bool IsItemItsOwnContainerOverride(object item)
 		{
-			return item is NodeItem;
+			return item is LinkItem;
 		}
 
 		#endregion Methods

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows;
 using System.Windows.Media;
+using System.Globalization;
 namespace Utils
 {
 	public class ConverterBase : System.Windows.Markup.MarkupExtension
@@ -19,6 +20,115 @@ namespace Utils
 			return this;
 		}
 	}
+
+	public class DoubleShiftConverter : ConverterBase ,IValueConverter
+	{
+		public DoubleShiftConverter()
+		{
+
+		}
+
+		#region IValueConverter Members
+
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value == null || value == DependencyProperty.UnsetValue)
+			{
+				return null;
+			}
+			if (parameter == null)
+			{
+				return value;
+			}
+			double v = (double)value;
+			string s = (string)parameter;
+			double offset = 0;
+			if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out offset))
+			{
+				return v + offset;
+			}
+			else
+			{
+				return v;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value == null || value == DependencyProperty.UnsetValue)
+			{
+				return null;
+			}
+			if (parameter == null)
+			{
+				return value;
+			}
+			double v = (double)value;
+			string s = (string)parameter;
+			double offset = 0;
+			if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out offset))
+			{
+				return v - offset;
+			}
+			else
+			{
+				return v;
+			}
+		}
+
+		#endregion
+	}
+
+	public class PointShiftConverter : ConverterBase, IValueConverter
+	{
+		public PointShiftConverter()
+		{
+
+		}
+
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (value == null)
+			{
+				return null;
+			}
+			Point p = (Point)value;
+			if (p==null)
+			{
+				return null;
+			}
+			string param = (string)parameter;
+			if (param == null)
+			{
+				return value;
+			}
+			string[] parts = param.Split(';');
+
+			double x = double.Parse(parts[0], CultureInfo.InvariantCulture.NumberFormat);
+			double y = double.Parse(parts[1], CultureInfo.InvariantCulture.NumberFormat);
+			return new Point(p.X + x, p.Y + y);
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Point p = (Point)value;
+			if (p == null)
+			{
+				return null;
+			}
+			string param = (string)parameter;
+			if (param == null)
+			{
+				return value;
+			}
+			string[] parts = param.Split(';');
+
+			double x = double.Parse(parts[0], CultureInfo.InvariantCulture.NumberFormat);
+			double y = double.Parse(parts[1], CultureInfo.InvariantCulture.NumberFormat);
+			return new Point(p.X - x, p.Y - y);
+		}
+	}
+
 	public class BoolToVisibilityConverter : ConverterBase, IValueConverter
 	{
 		public BoolToVisibilityConverter()
@@ -26,12 +136,12 @@ namespace Utils
 
 		}
 
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			return (bool)value ? Visibility.Visible : parameter ?? Visibility.Collapsed;
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			return (parameter ?? Visibility.Visible) == value;
 		}
@@ -43,7 +153,7 @@ namespace Utils
 
 		}
 
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			if (parameter == null || parameter.GetType() != typeof(string) || value.GetType() != typeof(bool))
 			{
@@ -55,7 +165,7 @@ namespace Utils
 			return ColorConverter.ConvertFromString(val ? parts[0] : parts[1]);
 		}
 
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException();
 		}

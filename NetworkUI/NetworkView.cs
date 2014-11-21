@@ -143,7 +143,9 @@ namespace NetworkUI
 
 		#region Properties
 
-		private List<object> m_InitialSelection = new List<object>();
+		private List<object> m_InitialNodeSelection = new List<object>();
+		private List<object> m_InitialLinkSelection = new List<object>();
+		private LinkItemsControl m_LinkItemsControl = null;
 		private NodeItemsControl m_NodeItemsControl = null;
 
 		public object SelectedNode
@@ -154,11 +156,11 @@ namespace NetworkUI
 				{
 					return m_NodeItemsControl.SelectedItem;
 				}
-				if (m_InitialSelection.Count != 1)
+				if (m_InitialNodeSelection.Count != 1)
 				{
 					return null;
 				}
-				return m_InitialSelection[0];
+				return m_InitialNodeSelection[0];
 			}
 			set
 			{
@@ -168,11 +170,40 @@ namespace NetworkUI
 				}
 				else
 				{
-					m_InitialSelection.Clear();
-					m_InitialSelection.Add(value);
+					m_InitialNodeSelection.Clear();
+					m_InitialNodeSelection.Add(value);
 				}
 			}
 		}
+
+		public object SelectedLink
+		{
+			get
+			{
+				if (m_LinkItemsControl != null)
+				{
+					return m_LinkItemsControl.SelectedItem;
+				}
+				if (m_InitialLinkSelection.Count != 1)
+				{
+					return null;
+				}
+				return m_InitialLinkSelection[0];
+			}
+			set
+			{
+				if (m_LinkItemsControl != null)
+				{
+					m_LinkItemsControl.SelectedItem = value;
+				}
+				else
+				{
+					m_InitialLinkSelection.Clear();
+					m_InitialLinkSelection.Add(value);
+				}
+			}
+		}
+
 
 		public IList SelectedNodes
 		{
@@ -184,7 +215,21 @@ namespace NetworkUI
 				}
 				else
 				{
-					return m_InitialSelection;
+					return m_InitialNodeSelection;
+				}
+			}
+		}
+		public IList SelectedLinks
+		{
+			get
+			{
+				if (m_LinkItemsControl != null)
+				{
+					return m_LinkItemsControl.SelectedItems;
+				}
+				else
+				{
+					return m_InitialLinkSelection;
 				}
 			}
 		}
@@ -213,9 +258,27 @@ namespace NetworkUI
 
 		#region Methods
 
+		public void BringLinkToFront(LinkItem item)
+		{
+			if (m_LinkItemsControl == null)
+			{
+				return;
+			}
+			int linkIndex = 0;
+			LinkItem linkItem = null;
+			while ((linkItem = (LinkItem)m_LinkItemsControl.ItemContainerGenerator.ContainerFromIndex(linkIndex++)) != null)
+			{
+				if (linkItem.ZIndex > item.ZIndex)
+				{
+					linkItem.ZIndex--;
+				}
+			}
+			item.ZIndex = linkIndex;
+		}
+
 		public void BringNodeToFront(NodeItem item)
 		{
-			if (this.m_NodeItemsControl == null)
+			if (m_NodeItemsControl == null)
 			{
 				return;
 			}
@@ -241,6 +304,12 @@ namespace NetworkUI
 				throw new ApplicationException("Failed to find 'PART_Nodes' in the visual tree for 'NetworkView'.");
 			}
 			m_NodeItemsControl.SelectionChanged += PART_Nodes_SelectionChanged;
+			m_LinkItemsControl = GetTemplateChild("PART_Links") as LinkItemsControl;
+			if (m_LinkItemsControl == null)
+			{
+				throw new ApplicationException("Failed to find 'PART_Link' in the visual tree for 'NetworkView'.");
+			}
+			m_LinkItemsControl.SelectionChanged += PART_Links_SelectionChanged;
 		}
 
 		internal NodeItem FindAssociatedNodeItem(object node)
@@ -376,9 +445,22 @@ namespace NetworkUI
 			}
 		}
 
+		private void PART_Links_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			OnLinkSelectionChanged(new SelectionChangedEventArgs(ListBox.SelectionChangedEvent, e.RemovedItems, e.AddedItems));
+			if (e.AddedItems.Count != 0)
+			{
+				SelectedNodes.Clear();
+			}
+		}
+
 		private void PART_Nodes_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			OnSelectionChanged(new SelectionChangedEventArgs(ListBox.SelectionChangedEvent, e.RemovedItems, e.AddedItems));
+			OnNodeSelectionChanged(new SelectionChangedEventArgs(ListBox.SelectionChangedEvent, e.RemovedItems, e.AddedItems));
+			if (e.AddedItems.Count != 0)
+			{
+				SelectedLinks.Clear();
+			}
 		}
 
 		#endregion Event Handlers
@@ -465,7 +547,8 @@ namespace NetworkUI
 			remove { RemoveHandler(QueryConnectionResultEvent, value); }
 		}
 
-		public event SelectionChangedEventHandler SelectionChanged;
+		public event SelectionChangedEventHandler NodeSelectionChanged;
+		public event SelectionChangedEventHandler LinkSelectionChanged;
 
 		protected virtual void OnConnectionDragCompleted(object node, object connection, object connector, object endConnector)
 		{
@@ -513,11 +596,18 @@ namespace NetworkUI
 			RaiseEvent(new QueryConnectionResultEventArgs(QueryConnectionResultEvent, this, node, connection, connector, closestConnector, accepted));
 		}
 
-		protected virtual void OnSelectionChanged(SelectionChangedEventArgs e)
+		protected virtual void OnNodeSelectionChanged(SelectionChangedEventArgs e)
 		{
-			if (SelectionChanged != null)
+			if (NodeSelectionChanged != null)
 			{
-				SelectionChanged(this, e);
+				NodeSelectionChanged(this, e);
+			}
+		}
+		protected virtual void OnLinkSelectionChanged(SelectionChangedEventArgs e)
+		{
+			if (LinkSelectionChanged != null)
+			{
+				LinkSelectionChanged(this, e);
 			}
 		}
 

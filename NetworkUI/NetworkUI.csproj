@@ -51,9 +51,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="ConnectionDragEvents.cs" />
+    <Compile Include="LinkDragEvents.cs" />
     <Compile Include="ConnectorDragEvents.cs" />
     <Compile Include="ConnectorItem.cs" />
+    <Compile Include="LinkEndpointItem.cs" />
+    <Compile Include="LinkItem.cs" />
+    <Compile Include="LinkItemsControl.cs" />
     <Compile Include="NetworkView_ConnectorDragEvents.cs">
       <DependentUpon>NetworkView.cs</DependentUpon>
     </Compile>

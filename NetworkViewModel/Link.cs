@@ -24,6 +24,21 @@ namespace NetworkViewModel
 		private Point m_GhostDestinationHotspot;
 		private bool m_IsGhostVisible = false;
 		private bool m_IsGhostAccepted = false;
+		private bool m_IsSelected = false;
+
+		public bool IsSelected
+		{
+			get
+			{
+				return m_IsSelected;
+			}
+			set
+			{
+				OnPropertyChanging("IsSelected");
+				m_IsSelected = value;
+				OnPropertyChanged("IsSelected");
+			}
+		}
 		public bool IsGhostVisible
 		{
 			get

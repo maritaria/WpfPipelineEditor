@@ -47,7 +47,10 @@
 						  Y1="{Binding Path=SourceHotspot.Y}"
 						  X2="{Binding Path=DestinationHotspot.X}"
 						  Y2="{Binding Path=DestinationHotspot.Y}"
-						  Stroke="Black" StrokeThickness="5">
+						  StrokeThickness="5">
+						<Line.Stroke>
+							<SolidColorBrush Color="{Binding Path=IsSelected,Converter={Utils:BoolToColorConverter},ConverterParameter=Aqua;Blue}"/>
+						</Line.Stroke>
 					</Line>
 					<Line X1="{Binding Path=GhostSourceHotspot.X}"
 						  Y1="{Binding Path=GhostSourceHotspot.Y}"
@@ -59,6 +62,8 @@
 							<SolidColorBrush Color="{Binding Path=IsGhostAccepted,Converter={Utils:BoolToColorConverter},ConverterParameter=DarkGreen;Red}"/>
 						</Line.Stroke>
 					</Line>
+					<NetworkUI:LinkEndpointItem Hotspot="{Binding Path=SourceHotspot}"/>
+					<NetworkUI:LinkEndpointItem Hotspot="{Binding Path=DestinationHotspot}"/>
 				</Canvas>
 			</DataTemplate>
 
@@ -68,6 +73,10 @@
 				<Setter Property="Y" Value="{Binding Y}" />
 				<Setter Property="ZIndex" Value="{Binding ZIndex}" />
 				<Setter Property="IsSelected" Value="{Binding IsSelected}" />
+			</Style>
+			
+			<Style TargetType="{x:Type NetworkUI:LinkItem}">
+				<Setter Property="IsSelected" Value="{Binding IsSelected}"/>
 			</Style>
 
 			<Style TargetType="{x:Type NetworkUI:ConnectorItem}">
@@ -87,6 +96,20 @@
 						<Setter Property="Background" Value="Red"/>
 					</DataTrigger>
 				</Style.Triggers>
+			</Style>
+			
+			<Style	TargetType="{x:Type NetworkUI:LinkEndpointItem}">
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="{x:Type NetworkUI:LinkEndpointItem}">
+							<Path Fill="White" Stroke="Black" StrokeThickness="1">
+								<Path.Data>
+									<EllipseGeometry Center="0,0" RadiusX="4" RadiusY="4"/>
+								</Path.Data>
+							</Path>
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
 			</Style>
 			
 		</ResourceDictionary>
