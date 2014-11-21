@@ -51,7 +51,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="LinkDragEvents.cs" />
+    <Compile Include="ConnectionDragEvents.cs" />
     <Compile Include="ConnectorDragEvents.cs" />
     <Compile Include="ConnectorItem.cs" />
     <Compile Include="LinkEndpointItem.cs" />
