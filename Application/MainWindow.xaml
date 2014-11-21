@@ -62,24 +62,24 @@
 							<SolidColorBrush Color="{Binding Path=IsGhostAccepted,Converter={Utils:BoolToColorConverter},ConverterParameter=DarkGreen;Red}"/>
 						</Line.Stroke>
 					</Line>
-					<NetworkUI:LinkEndpointItem Hotspot="{Binding Path=SourceHotspot}"/>
-					<NetworkUI:LinkEndpointItem Hotspot="{Binding Path=DestinationHotspot}"/>
+					<NetworkUI:EndpointItem Hotspot="{Binding Path=SourceHotspot}" Side="{x:Static NetworkVM:ConnectorType.Source}"/>
+					<NetworkUI:EndpointItem Hotspot="{Binding Path=DestinationHotspot}" Side="{x:Static NetworkVM:ConnectorType.Destination}"/>
 				</Canvas>
 			</DataTemplate>
 
 			<!-- Bind NodeItem properties to viewmodel -->
-			<Style TargetType="{x:Type NetworkUI:NodeItem}">
+			<Style	TargetType="{x:Type NetworkUI:NodeItem}">
 				<Setter Property="X" Value="{Binding X}"/>
 				<Setter Property="Y" Value="{Binding Y}" />
 				<Setter Property="ZIndex" Value="{Binding ZIndex}" />
 				<Setter Property="IsSelected" Value="{Binding IsSelected}" />
 			</Style>
 			
-			<Style TargetType="{x:Type NetworkUI:LinkItem}">
+			<Style	TargetType="{x:Type NetworkUI:LinkItem}">
 				<Setter Property="IsSelected" Value="{Binding IsSelected}"/>
 			</Style>
 
-			<Style TargetType="{x:Type NetworkUI:ConnectorItem}">
+			<Style	TargetType="{x:Type NetworkUI:ConnectorItem}">
 				<Setter Property="Hotspot" Value="{Binding Hotspot, Mode=OneWayToSource}" />
 				<Setter Property="Template">
 					<Setter.Value>
@@ -98,10 +98,10 @@
 				</Style.Triggers>
 			</Style>
 			
-			<Style	TargetType="{x:Type NetworkUI:LinkEndpointItem}">
+			<Style	TargetType="{x:Type NetworkUI:EndpointItem}">
 				<Setter Property="Template">
 					<Setter.Value>
-						<ControlTemplate TargetType="{x:Type NetworkUI:LinkEndpointItem}">
+						<ControlTemplate TargetType="{x:Type NetworkUI:EndpointItem}">
 							<Path Fill="White" Stroke="Black" StrokeThickness="1">
 								<Path.Data>
 									<EllipseGeometry Center="0,0" RadiusX="4" RadiusY="4"/>
@@ -121,14 +121,19 @@
 	</Window.DataContext>
 	
 	<Grid>
-		<NetworkUI:NetworkView x:Name="PART_NetworkView"
-			NodesSource="{Binding Path=Network.Nodes}"
-			ConnectionsSource="{Binding Path=Network.Links}"
-			ConnectionDragStarted="NetworkView_ConnectionDragStarted"
-			ConnectionDragging="NetworkView_ConnectionDragging"
-			ConnectionDragCompleted="NetworkView_ConnectionDragCompleted"
-			QueryConnectionFeedback="NetworkView_QueryConnectionFeedback"
-			QueryConnectionResult="NetworkView_QueryConnectionResult">
+		<NetworkUI:NetworkView	x:Name="PART_NetworkView"
+								NodesSource="{Binding Path=Network.Nodes}"
+								ConnectionsSource="{Binding Path=Network.Links}"
+								ConnectorLinkDragStarted="NetworkView_ConnectionDragStarted"
+								ConnectorLinkDragging="NetworkView_ConnectionDragging"
+								ConnectorLinkDragCompleted="NetworkView_ConnectionDragCompleted"
+								ConnectorLinkFeedbackQuery="NetworkView_ConnectorLinkFeedbackQuery"
+								ConnectorLinkFeedbackResult="NetworkView_ConnectorLinkFeedbackResult"
+								EndpointLinkDragStarted="NetworkView_EndpointLinkDragStarted"
+								EndpointLinkDragging="NetworkView_EndpointLinkDragging"
+								EndpointLinkDragCompleted="NetworkView_EndpointLinkDragCompleted"
+								EndpointLinkFeedbackQuery="NetworkView_EndpointLinkFeedbackQuery"
+								EndpointLinkFeedbackResult="NetworkView_EndpointLinkFeedbackResult">
 		</NetworkUI:NetworkView>
 		<Button VerticalAlignment="Bottom" Height="23" Click="Button_Click"></Button>
 	</Grid>

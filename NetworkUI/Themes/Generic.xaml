@@ -105,7 +105,7 @@
 		</Setter>
 	</Style>
 
-	<Style	TargetType="{x:Type local:LinkEndpointItem}">
+	<Style	TargetType="{x:Type local:EndpointItem}">
 		<Setter	Property="ParentNetworkView"
 				Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:NetworkView}}, Path=.}"/>
 		<Setter	Property="ParentLinkItem"

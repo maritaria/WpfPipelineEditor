@@ -15,7 +15,7 @@ namespace NetworkUI
 		#region Properties
 
 		private object m_DraggedConnectionDataContext;
-		private object m_DraggedConnectorEndpointDataContext;
+		private object m_DraggedConnectorClosestMatch;
 		private ConnectorItem m_DraggedConnectorItem;
 		private object m_DraggedConnectorItemDataContext;
 		private object m_DraggedNodeDataContext;
@@ -43,7 +43,7 @@ namespace NetworkUI
 			//Raise an event to inform application code that connection dragging is complete.
 			//The application code can determine if the connection between the two connectors
 			//is valid and if so it is free to make the appropriate connection in the view-model.
-			OnConnectionDragCompleted(m_DraggedNodeDataContext, m_DraggedConnectionDataContext, m_DraggedConnectorItemDataContext, m_DraggedConnectorEndpointDataContext);
+			OnConnectionDragCompleted(m_DraggedNodeDataContext, m_DraggedConnectionDataContext, m_DraggedConnectorItemDataContext, m_DraggedConnectorClosestMatch);
 
 			//this.IsDragging = false;
 			//this.IsNotDragging = true;
@@ -68,7 +68,7 @@ namespace NetworkUI
 			//Raise an event so that application code can specify if the connector that was dragged over is valid or not.
 			var results = OnQueryConnectionFeedback(m_DraggedNodeDataContext, m_DraggedConnectionDataContext, m_DraggedConnectorItemDataContext);
 
-			m_DraggedConnectorEndpointDataContext = results.ClosestConnector;
+			m_DraggedConnectorClosestMatch = results.ClosestConnector;
 
 			OnQueryConnectionResult(m_DraggedNodeDataContext, m_DraggedConnectionDataContext, m_DraggedConnectorItemDataContext, results.ClosestConnector, results.AcceptConnection);
 		}
@@ -103,5 +103,88 @@ namespace NetworkUI
 		}
 
 		#endregion Event Handlers
+
+		#region Events
+
+		public static readonly RoutedEvent ConnectorLinkDragCompletedEvent = EventManager.RegisterRoutedEvent(
+			"ConnectorLinkDragCompleted", RoutingStrategy.Bubble,
+			typeof(ConnectorLinkDragCompletedEventHandler), typeof(NetworkView));
+
+		public static readonly RoutedEvent ConnectorLinkDraggingEvent = EventManager.RegisterRoutedEvent(
+			"ConnectorLinkDragging", RoutingStrategy.Bubble,
+			typeof(ConnectorLinkDraggingEventHandler), typeof(NetworkView));
+
+		public static readonly RoutedEvent ConnectorLinkDragStartedEvent = EventManager.RegisterRoutedEvent(
+			"ConnectorLinkDragStarted", RoutingStrategy.Bubble,
+			typeof(ConnectorLinkDragStartedEventHandler), typeof(NetworkView));
+
+		public static readonly RoutedEvent ConnectorLinkFeedbackQueryEvent = EventManager.RegisterRoutedEvent(
+			"ConnectorLinkFeedbackQuery", RoutingStrategy.Bubble,
+			typeof(ConnectorLinkFeedbackQueryEventHandler), typeof(NetworkView));
+
+		public static readonly RoutedEvent ConnectorLinkFeedbackResultEvent = EventManager.RegisterRoutedEvent(
+			"ConnectorLinkFeedbackResult", RoutingStrategy.Bubble,
+			typeof(ConnectorLinkFeedbackResultEventHandler), typeof(NetworkView));
+
+		public event ConnectorLinkDragCompletedEventHandler ConnectorLinkDragCompleted
+		{
+			add { AddHandler(ConnectorLinkDragCompletedEvent, value); }
+			remove { RemoveHandler(ConnectorLinkDragCompletedEvent, value); }
+		}
+
+		public event ConnectorLinkDraggingEventHandler ConnectorLinkDragging
+		{
+			add { AddHandler(ConnectorLinkDraggingEvent, value); }
+			remove { RemoveHandler(ConnectorLinkDraggingEvent, value); }
+		}
+
+		public event ConnectorLinkDragStartedEventHandler ConnectorLinkDragStarted
+		{
+			add { AddHandler(ConnectorLinkDragStartedEvent, value); }
+			remove { RemoveHandler(ConnectorLinkDragStartedEvent, value); }
+		}
+
+		public event ConnectorLinkFeedbackQueryEventHandler ConnectorLinkFeedbackQuery
+		{
+			add { AddHandler(ConnectorLinkFeedbackQueryEvent, value); }
+			remove { RemoveHandler(ConnectorLinkFeedbackQueryEvent, value); }
+		}
+
+		public event ConnectorLinkFeedbackResultEventHandler ConnectorLinkFeedbackResult
+		{
+			add { AddHandler(ConnectorLinkFeedbackResultEvent, value); }
+			remove { RemoveHandler(ConnectorLinkFeedbackResultEvent, value); }
+		}
+
+		protected virtual void OnConnectionDragCompleted(object node, object connection, object connector, object endConnector)
+		{
+			RaiseEvent(new ConnectorLinkDragCompletedEventArgs(ConnectorLinkDragCompletedEvent, this, node, connection, connector, endConnector));
+		}
+
+		protected virtual void OnConnectionDragging(object node, object connection, object connector)
+		{
+			RaiseEvent(new ConnectorLinkDraggingEventArgs(ConnectorLinkDraggingEvent, this, node, connection, connector));
+		}
+
+		protected virtual object OnConnectionDragStarted(object node, object connector)
+		{
+			var e = new ConnectorLinkDragStartedEventArgs(ConnectorLinkDragStartedEvent, this, node, connector);
+			RaiseEvent(e);
+			return e.Connection;
+		}
+
+		protected virtual ConnectorLinkFeedbackQueryEventArgs OnQueryConnectionFeedback(object node, object connection, object connector)
+		{
+			var e = new ConnectorLinkFeedbackQueryEventArgs(ConnectorLinkFeedbackQueryEvent, this, node, connection, connector);
+			RaiseEvent(e);
+			return e;
+		}
+
+		protected virtual void OnQueryConnectionResult(object node, object connection, object connector, object closestConnector, bool accepted)
+		{
+			RaiseEvent(new ConnectorLinkFeedbackResultEventArgs(ConnectorLinkFeedbackResultEvent, this, node, connection, connector, closestConnector, accepted));
+		}
+
+		#endregion Events
 	}
 }

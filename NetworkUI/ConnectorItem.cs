@@ -105,6 +105,7 @@ namespace NetworkUI
 					this.ParentNodeItem.LeftMouseDownSelectionLogic();
 				}
 				m_PreviousMousePos = e.GetPosition(this.ParentNetworkView);
+				m_DragStartingPos = m_PreviousMousePos;
 				m_IsLeftMouseDown = true;
 				e.Handled = true;
 			}

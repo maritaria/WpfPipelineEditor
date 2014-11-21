@@ -30,16 +30,14 @@ namespace EditorApplication
 		#region Constructor
 		public ApplicationViewModel()
 		{
-			var node1 = new Node(Network);
-			new InputConnector(node1);
-			new InputConnector(node1);
-			new OutputConnector(node1);
-			new OutputConnector(node1);
-			var node2 = new Node(Network) { Y = 100 };
-			new InputConnector(node2);
-			new InputConnector(node2);
-			new OutputConnector(node2);
-			new OutputConnector(node2);
+			for (int i = 0;i<3;i++)
+			{
+				var node1 = new Node(Network) { X = 0, Y = i * 100 };
+				new InputConnector(node1);
+				new InputConnector(node1);
+				new OutputConnector(node1);
+				new OutputConnector(node1);
+			}
 		}
 		#endregion Constructor
 	}

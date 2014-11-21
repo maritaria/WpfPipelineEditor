@@ -252,6 +252,9 @@ namespace NetworkUI
 			AddHandler(ConnectorItem.ConnectorDragStartedEvent, new ConnectorDragStartedEventHandler(ConnectorItem_DragStarted));
 			AddHandler(ConnectorItem.ConnectorDraggingEvent, new ConnectorDraggingEventHandler(ConnectorItem_Dragging));
 			AddHandler(ConnectorItem.ConnectorDragCompletedEvent, new ConnectorDragCompletedEventHandler(ConnectorItem_DragCompleted));
+			AddHandler(EndpointItem.EndpointDragStartedEvent, new EndpointDragStartedEventHandler(EndpointItem_DragStarted));
+			AddHandler(EndpointItem.EndpointDraggingEvent, new EndpointDraggingEventHandler(EndpointItem_Dragging));
+			AddHandler(EndpointItem.EndpointDragCompletedEvent, new EndpointDragCompletedEventHandler(EndpointItem_DragCompleted));
 		}
 
 		#endregion Constructor
@@ -467,17 +470,6 @@ namespace NetworkUI
 
 		#region Events
 
-		public static readonly RoutedEvent ConnectionDragCompletedEvent = EventManager.RegisterRoutedEvent(
-			"ConnectionDragCompleted", RoutingStrategy.Bubble,
-			typeof(ConnectionDragCompletedEventHandler), typeof(NetworkView));
-
-		public static readonly RoutedEvent ConnectionDraggingEvent = EventManager.RegisterRoutedEvent(
-			"ConnectionDragging", RoutingStrategy.Bubble,
-			typeof(ConnectionDraggingEventHandler), typeof(NetworkView));
-
-		public static readonly RoutedEvent ConnectionDragStartedEvent = EventManager.RegisterRoutedEvent(
-			"ConnectionDragStarted", RoutingStrategy.Bubble,
-			typeof(ConnectionDragStartedEventHandler), typeof(NetworkView));
 
 		public static readonly RoutedEvent NodeDragCompletedEvent = EventManager.RegisterRoutedEvent(
 			"NodeDragCompleted", RoutingStrategy.Bubble,
@@ -491,31 +483,6 @@ namespace NetworkUI
 			"NodeDragStarted", RoutingStrategy.Bubble,
 			typeof(NodeDragStartedEventHandler), typeof(NetworkView));
 
-		public static readonly RoutedEvent QueryConnectionFeedbackEvent = EventManager.RegisterRoutedEvent(
-			"QueryConnectionFeedback", RoutingStrategy.Bubble,
-			typeof(QueryConnectionFeedbackEventHandler), typeof(NetworkView));
-
-		public static readonly RoutedEvent QueryConnectionResultEvent = EventManager.RegisterRoutedEvent(
-			"QueryConnectionResult", RoutingStrategy.Bubble,
-			typeof(QueryConnectionResultEventHandler), typeof(NetworkView));
-
-		public event ConnectionDragCompletedEventHandler ConnectionDragCompleted
-		{
-			add { AddHandler(ConnectionDragCompletedEvent, value); }
-			remove { RemoveHandler(ConnectionDragCompletedEvent, value); }
-		}
-
-		public event ConnectionDraggingEventHandler ConnectionDragging
-		{
-			add { AddHandler(ConnectionDraggingEvent, value); }
-			remove { RemoveHandler(ConnectionDraggingEvent, value); }
-		}
-
-		public event ConnectionDragStartedEventHandler ConnectionDragStarted
-		{
-			add { AddHandler(ConnectionDragStartedEvent, value); }
-			remove { RemoveHandler(ConnectionDragStartedEvent, value); }
-		}
 
 		public event NodeDragCompletedEventHandler NodeDragCompleted
 		{
@@ -535,37 +502,8 @@ namespace NetworkUI
 			remove { RemoveHandler(NodeDragStartedEvent, value); }
 		}
 
-		public event QueryConnectionFeedbackEventHandler QueryConnectionFeedback
-		{
-			add { AddHandler(QueryConnectionFeedbackEvent, value); }
-			remove { RemoveHandler(QueryConnectionFeedbackEvent, value); }
-		}
-
-		public event QueryConnectionResultEventHandler QueryConnectionResult
-		{
-			add { AddHandler(QueryConnectionResultEvent, value); }
-			remove { RemoveHandler(QueryConnectionResultEvent, value); }
-		}
-
 		public event SelectionChangedEventHandler NodeSelectionChanged;
 		public event SelectionChangedEventHandler LinkSelectionChanged;
-
-		protected virtual void OnConnectionDragCompleted(object node, object connection, object connector, object endConnector)
-		{
-			RaiseEvent(new ConnectionDragCompletedEventArgs(ConnectionDragCompletedEvent, this, node, connection, connector, endConnector));
-		}
-
-		protected virtual void OnConnectionDragging(object node, object connection, object connector)
-		{
-			RaiseEvent(new ConnectionDraggingEventArgs(ConnectionDraggingEvent, this, node, connection, connector));
-		}
-
-		protected virtual object OnConnectionDragStarted(object node, object connector)
-		{
-			var e = new ConnectionDragStartedEventArgs(ConnectionDragStartedEvent, this, node, connector);
-			RaiseEvent(e);
-			return e.Connection;
-		}
 
 		protected virtual void OnNodeDragCompleted(ICollection nodes, double startX, double startY, double endX, double endY)
 		{
@@ -582,18 +520,6 @@ namespace NetworkUI
 			NodeDragStartedEventArgs e = new NodeDragStartedEventArgs(NodeDragStartedEvent, this, nodes);
 			RaiseEvent(e);
 			return e.Cancelled;
-		}
-
-		protected virtual QueryConnectionFeedbackEventArgs OnQueryConnectionFeedback(object node, object connection, object connector)
-		{
-			var e = new QueryConnectionFeedbackEventArgs(QueryConnectionFeedbackEvent, this, node, connection, connector);
-			RaiseEvent(e);
-			return e;
-		}
-
-		protected virtual void OnQueryConnectionResult(object node, object connection, object connector, object closestConnector, bool accepted)
-		{
-			RaiseEvent(new QueryConnectionResultEventArgs(QueryConnectionResultEvent, this, node, connection, connector, closestConnector, accepted));
 		}
 
 		protected virtual void OnNodeSelectionChanged(SelectionChangedEventArgs e)

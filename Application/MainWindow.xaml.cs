@@ -42,7 +42,7 @@ namespace EditorApplication
 			System.Diagnostics.Debugger.Break();
 		}
 
-		private void NetworkView_ConnectionDragCompleted(object sender, ConnectionDragCompletedEventArgs e)
+		private void NetworkView_ConnectionDragCompleted(object sender, ConnectorLinkDragCompletedEventArgs e)
 		{
 			Link link = e.Connection as Link;
 			link.DisableGhost();
@@ -51,7 +51,7 @@ namespace EditorApplication
 			ViewModel.Network.ConnectionCompleted(link, connector.Type.Opposite(), endconnector);
 		}
 
-		private void NetworkView_ConnectionDragging(object sender, ConnectionDraggingEventArgs e)
+		private void NetworkView_ConnectionDragging(object sender, ConnectorLinkDraggingEventArgs e)
 		{
 			Link link = e.Connection as Link;
 			Connector connector = e.DraggedOutConnector as Connector;
@@ -59,7 +59,7 @@ namespace EditorApplication
 			ViewModel.Network.ConnectionUpdated(link, connector.Type.Opposite(), mousePos);
 		}
 
-		private void NetworkView_ConnectionDragStarted(object sender, ConnectionDragStartedEventArgs e)
+		private void NetworkView_ConnectionDragStarted(object sender, ConnectorLinkDragStartedEventArgs e)
 		{
 			Node node = e.Node as Node;
 			if (node == null)
@@ -75,36 +75,61 @@ namespace EditorApplication
 			e.Connection = ViewModel.Network.ConnectionStarted(start, mousePos);
 		}
 
-		private void NetworkView_QueryConnectionFeedback(object sender, QueryConnectionFeedbackEventArgs e)
+		private void NetworkView_ConnectorLinkFeedbackQuery(object sender, ConnectorLinkFeedbackQueryEventArgs e)
 		{
 			var link = e.Connection as Link;
 			var start = e.DraggedOutConnector as Connector;
 			var draggedSide = start.Type.Opposite();
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			Connector closest = FindConnector(mousePos, start, draggedSide);
+			e.ClosestConnector = closest;
+			if (closest != null)
+			{
+				e.AcceptConnection = closest.AllowConnection(e.DraggedOutConnector as Connector);
+			}
+		}
+		private Connector FindConnector(Point mousePos, Connector linkEndpoint, Nullable<ConnectorType> wantedType, double maxDistance=30)
+		{
 			Connector closest = null;
-			double distance = 30;//Set to maximum distance (exclusive)
 			bool isAccepted = false;
 			foreach (Node node in ViewModel.Network.Nodes)
 			{
 				IEnumerable<Connector> connectors;
-				if (draggedSide == ConnectorType.Input)
+				if (!wantedType.HasValue && linkEndpoint == null)
 				{
-					connectors = node.InputConnectors;
+					List<Connector> both = new List<Connector>(node.InputConnectors);
+					both.AddRange(node.OutputConnectors);
+					connectors = both;
 				}
 				else
 				{
-					connectors = node.OutputConnectors;
+					if (!wantedType.HasValue)
+					{
+						wantedType = linkEndpoint.Type.Opposite();
+					}
+					if (wantedType == ConnectorType.Input)
+					{
+						connectors = node.InputConnectors;
+					}
+					else
+					{
+						connectors = node.OutputConnectors;
+					}
 				}
 				foreach (Connector c in connectors)
 				{
 					double dist = c.Hotspot.Delta(mousePos).Length();
-					bool accepted = c.AllowConnection(start);
-					if (isAccepted && !accepted)
+					bool accepted = true;
+					if (linkEndpoint != null)
 					{
-						//Don't accept connectors that won't be accepted anyway (if any have already been accepted)
-						continue;
+						accepted = c.AllowConnection(linkEndpoint);
+						if (isAccepted && !accepted)
+						{
+							//Don't accept connectors that won't be accepted anyway (if any have already been accepted)
+							continue;
+						}
 					}
-					if (dist < distance)
+					if (dist < maxDistance)
 					{
 						//If this is is the first unaccepted that is still within range, then set it but don't lower
 						//the range so another connector that is further away can still override the connector (only
@@ -113,19 +138,14 @@ namespace EditorApplication
 						closest = c;
 						if (isAccepted)
 						{
-							distance = dist;
+							maxDistance = dist;
 						}
 					}
 				}
 			}
-			e.ClosestConnector = closest;
-			if (closest != null)
-			{
-				e.AcceptConnection = closest.AllowConnection(e.DraggedOutConnector as Connector);
-			}
+			return closest;
 		}
-
-		private void NetworkView_QueryConnectionResult(object sender, QueryConnectionResultEventArgs e)
+		private void NetworkView_ConnectorLinkFeedbackResult(object sender, ConnectorLinkFeedbackResultEventArgs e)
 		{
 			var link = e.Connection as Link;
 			Connector closest = e.ClosestConnector as Connector;
@@ -137,6 +157,69 @@ namespace EditorApplication
 			{
 				Connector dragged = e.DraggedOutConnector as Connector;
 				link.UpdateGhost(dragged.Type.Opposite(), closest,e.ConnectionAccepted);
+			}
+		}
+
+		private void NetworkView_EndpointLinkDragStarted(object sender, EndpointLinkDragStartedEventArgs e)
+		{
+			Link link = e.Link as Link;
+			ConnectorType type = (ConnectorType)e.DraggedSide;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
+		}
+
+		private void NetworkView_EndpointLinkDragging(object sender, EndpointLinkDraggingEventArgs e)
+		{
+			Link link = e.Link as Link;
+			ConnectorType type = (ConnectorType)e.DraggedSide;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
+		}
+
+		private void NetworkView_EndpointLinkDragCompleted(object sender, EndpointLinkDragCompletedEventArgs e)
+		{
+			Link link = e.Link as Link;
+			link.DisableGhost();
+			ConnectorType draggedSide = (ConnectorType)e.DraggedSide;
+			Connector endConnector = e.EndConnector as Connector;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionCompleted(link, draggedSide, endConnector);
+		}
+
+		private void NetworkView_EndpointLinkFeedbackQuery(object sender, EndpointLinkFeedbackQueryEventArgs e)
+		{
+			var link = e.Link as Link;
+			var draggedSide = (ConnectorType)e.DraggedSide;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			Connector opposite = null;
+			if (draggedSide == ConnectorType.Source)
+			{
+				opposite = link.DestinationConnector;
+			}
+			else
+			{
+				opposite = link.SourceConnector;
+			}
+			Connector closest = FindConnector(mousePos, null, draggedSide);
+			e.ClosestConnector = closest;
+			if (closest != null && opposite != null)
+			{
+				e.AcceptConnection = closest.AllowConnection(opposite);
+			}
+		}
+
+		private void NetworkView_EndpointLinkFeedbackResult(object sender, EndpointLinkFeedbackResultEventArgs e)
+		{
+			var link = e.Link as Link;
+			Connector closest = e.ClosestConnector as Connector;
+			if (closest == null)
+			{
+				link.DisableGhost();
+			}
+			else
+			{
+				ConnectorType draggedSide = (ConnectorType)e.DraggedSide;
+				link.UpdateGhost(draggedSide, closest, e.Accepted);
 			}
 		}
 	}
