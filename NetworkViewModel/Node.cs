@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Utils;
 
-namespace NetworkViewModel
+namespace NetworkVM
 {
 	public class Node : ViewModelBase
 	{

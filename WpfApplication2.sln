@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkUI", "NetworkUI\Netw
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{12557796-67EF-4952-AE6D-5867372ED978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkViewModel", "NetworkViewModel\NetworkViewModel.csproj", "{E5CA3385-720A-4EF1-919B-C61A5748206B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkVM", "NetworkViewModel\NetworkVM.csproj", "{E5CA3385-720A-4EF1-919B-C61A5748206B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

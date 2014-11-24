@@ -1,4 +1,4 @@
-﻿using NetworkViewModel;
+﻿using NetworkVM;
 using System;
 using System.Collections.Generic;
 using System.Linq;

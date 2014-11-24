@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Utils;
 
-namespace NetworkViewModel
+namespace NetworkVM
 {
 	public class Network : ViewModelBase
 	{

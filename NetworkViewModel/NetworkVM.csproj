@@ -7,8 +7,8 @@
     <ProjectGuid>{E5CA3385-720A-4EF1-919B-C61A5748206B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NetworkViewModel</RootNamespace>
-    <AssemblyName>NetworkViewModel</AssemblyName>
+    <RootNamespace>NetworkVM</RootNamespace>
+    <AssemblyName>NetworkVM</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

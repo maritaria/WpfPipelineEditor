@@ -3,7 +3,7 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:local="clr-namespace:EditorApplication"
 		xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
-		xmlns:NetworkVM="clr-namespace:NetworkViewModel;assembly=NetworkViewModel"
+		xmlns:NetworkVM="clr-namespace:NetworkVM;assembly=NetworkVM"
 		xmlns:Utils="clr-namespace:Utils;assembly=Utils"
 		Title="MainWindow" Height="350" Width="525">
 	

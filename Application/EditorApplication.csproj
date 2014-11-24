@@ -113,9 +113,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetworkViewModel\NetworkViewModel.csproj">
+    <ProjectReference Include="..\NetworkViewModel\NetworkVM.csproj">
       <Project>{e5ca3385-720a-4ef1-919b-c61a5748206b}</Project>
-      <Name>NetworkViewModel</Name>
+      <Name>NetworkVM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.csproj">
       <Project>{12557796-67ef-4952-ae6d-5867372ed978}</Project>
