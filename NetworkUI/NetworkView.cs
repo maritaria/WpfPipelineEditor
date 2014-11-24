@@ -273,6 +273,7 @@ namespace NetworkUI
 			AddHandler(EndpointItem.EndpointDragStartedEvent, new EndpointDragStartedEventHandler(EndpointItem_DragStarted));
 			AddHandler(EndpointItem.EndpointDraggingEvent, new EndpointDraggingEventHandler(EndpointItem_Dragging));
 			AddHandler(EndpointItem.EndpointDragCompletedEvent, new EndpointDragCompletedEventHandler(EndpointItem_DragCompleted));
+			AddHandler(NodeItem.NodeResizeDeltaEvent, new NodeResizeDeltaEventHandler(NodeItem_NodeResized));
 		}
 
 		#endregion Constructor

@@ -24,6 +24,8 @@ namespace EditorApplication
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		#region Properties
+
 		public ApplicationViewModel ViewModel
 		{
 			get
@@ -32,63 +34,20 @@ namespace EditorApplication
 			}
 		}
 
+		#endregion Properties
+
+		#region Constructor
+
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e)
-		{
-			System.Diagnostics.Debugger.Break();
-		}
+		#endregion Constructor
 
-		private void NetworkView_ConnectionDragCompleted(object sender, ConnectorLinkDragCompletedEventArgs e)
-		{
-			Link link = e.Connection as Link;
-			link.DisableGhost();
-			Connector connector = e.DraggedOutConnector as Connector;
-			Connector endconnector = e.ConnectorDraggedOver as Connector;
-			ViewModel.Network.ConnectionCompleted(link, connector.Type.Opposite(), endconnector);
-		}
+		#region Methods
 
-		private void NetworkView_ConnectionDragging(object sender, ConnectorLinkDraggingEventArgs e)
-		{
-			Link link = e.Connection as Link;
-			Connector connector = e.DraggedOutConnector as Connector;
-			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, connector.Type.Opposite(), mousePos);
-		}
-
-		private void NetworkView_ConnectionDragStarted(object sender, ConnectorLinkDragStartedEventArgs e)
-		{
-			Node node = e.Node as Node;
-			if (node == null)
-			{
-				return;
-			}
-			Connector start = e.DraggedOutConnector as Connector;
-			if (start == null)
-			{
-				return;
-			}
-			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			e.Connection = ViewModel.Network.ConnectionStarted(start, mousePos);
-		}
-
-		private void NetworkView_ConnectorLinkFeedbackQuery(object sender, ConnectorLinkFeedbackQueryEventArgs e)
-		{
-			var link = e.Connection as Link;
-			var start = e.DraggedOutConnector as Connector;
-			var draggedSide = start.Type.Opposite();
-			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			Connector closest = FindConnector(mousePos, start, draggedSide);
-			e.ClosestConnector = closest;
-			if (closest != null)
-			{
-				e.AcceptConnection = closest.AllowConnection(e.DraggedOutConnector as Connector);
-			}
-		}
-		private Connector FindConnector(Point mousePos, Connector linkEndpoint, Nullable<ConnectorType> wantedType, double maxDistance=30)
+		private Connector FindConnector(Point mousePos, Connector linkEndpoint, Nullable<ConnectorType> wantedType, double maxDistance = 30)
 		{
 			Connector closest = null;
 			bool isAccepted = false;
@@ -145,6 +104,84 @@ namespace EditorApplication
 			}
 			return closest;
 		}
+
+		#endregion Methods
+
+		#region Event Handlers
+
+		private void Button_Click(object sender, RoutedEventArgs e)
+		{
+			System.Diagnostics.Debugger.Break();
+		}
+
+		private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			Point mousepos = Mouse.GetPosition(PART_NetworkView);
+			Node n = new Node(this.ViewModel.Network)
+			{
+				Name = "Node " +(ViewModel.Network.Nodes.Count + 1),
+				X = mousepos.X,
+				Y = mousepos.Y,
+			};
+		}
+
+		private void DeleteLink_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Network.DeleteSelectedLinks();
+		}
+
+		private void DeleteNode_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Network.DeleteSelectedNodes();
+		}
+
+		private void NetworkView_ConnectionDragCompleted(object sender, ConnectorLinkDragCompletedEventArgs e)
+		{
+			Link link = e.Connection as Link;
+			link.DisableGhost();
+			Connector connector = e.DraggedOutConnector as Connector;
+			Connector endconnector = e.ConnectorDraggedOver as Connector;
+			ViewModel.Network.ConnectionCompleted(link, connector.Type.Opposite(), endconnector);
+		}
+
+		private void NetworkView_ConnectionDragging(object sender, ConnectorLinkDraggingEventArgs e)
+		{
+			Link link = e.Connection as Link;
+			Connector connector = e.DraggedOutConnector as Connector;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionUpdated(link, connector.Type.Opposite(), mousePos);
+		}
+
+		private void NetworkView_ConnectionDragStarted(object sender, ConnectorLinkDragStartedEventArgs e)
+		{
+			Node node = e.Node as Node;
+			if (node == null)
+			{
+				return;
+			}
+			Connector start = e.DraggedOutConnector as Connector;
+			if (start == null)
+			{
+				return;
+			}
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			e.Connection = ViewModel.Network.ConnectionStarted(start, mousePos);
+		}
+
+		private void NetworkView_ConnectorLinkFeedbackQuery(object sender, ConnectorLinkFeedbackQueryEventArgs e)
+		{
+			var link = e.Connection as Link;
+			var start = e.DraggedOutConnector as Connector;
+			var draggedSide = start.Type.Opposite();
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			Connector closest = FindConnector(mousePos, start, draggedSide);
+			e.ClosestConnector = closest;
+			if (closest != null)
+			{
+				e.AcceptConnection = closest.AllowConnection(e.DraggedOutConnector as Connector);
+			}
+		}
+
 		private void NetworkView_ConnectorLinkFeedbackResult(object sender, ConnectorLinkFeedbackResultEventArgs e)
 		{
 			var link = e.Connection as Link;
@@ -156,24 +193,8 @@ namespace EditorApplication
 			else
 			{
 				Connector dragged = e.DraggedOutConnector as Connector;
-				link.UpdateGhost(dragged.Type.Opposite(), closest,e.ConnectionAccepted);
+				link.UpdateGhost(dragged.Type.Opposite(), closest, e.ConnectionAccepted);
 			}
-		}
-
-		private void NetworkView_EndpointLinkDragStarted(object sender, EndpointLinkDragStartedEventArgs e)
-		{
-			Link link = e.Link as Link;
-			ConnectorType type = (ConnectorType)e.DraggedSide;
-			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
-		}
-
-		private void NetworkView_EndpointLinkDragging(object sender, EndpointLinkDraggingEventArgs e)
-		{
-			Link link = e.Link as Link;
-			ConnectorType type = (ConnectorType)e.DraggedSide;
-			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
 		}
 
 		private void NetworkView_EndpointLinkDragCompleted(object sender, EndpointLinkDragCompletedEventArgs e)
@@ -184,6 +205,22 @@ namespace EditorApplication
 			Connector endConnector = e.EndConnector as Connector;
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
 			ViewModel.Network.ConnectionCompleted(link, draggedSide, endConnector);
+		}
+
+		private void NetworkView_EndpointLinkDragging(object sender, EndpointLinkDraggingEventArgs e)
+		{
+			Link link = e.Link as Link;
+			ConnectorType type = (ConnectorType)e.DraggedSide;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
+		}
+
+		private void NetworkView_EndpointLinkDragStarted(object sender, EndpointLinkDragStartedEventArgs e)
+		{
+			Link link = e.Link as Link;
+			ConnectorType type = (ConnectorType)e.DraggedSide;
+			Point mousePos = Mouse.GetPosition(PART_NetworkView);
+			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
 		}
 
 		private void NetworkView_EndpointLinkFeedbackQuery(object sender, EndpointLinkFeedbackQueryEventArgs e)
@@ -222,5 +259,7 @@ namespace EditorApplication
 				link.UpdateGhost(draggedSide, closest, e.Accepted);
 			}
 		}
+
+		#endregion Event Handlers
 	}
 }

@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters.cs" />
+    <Compile Include="MathHelper.cs" />
     <Compile Include="PointOverload.cs" />
     <Compile Include="RoutedCommandOverload.cs" />
     <Compile Include="UniqueObservableList.cs" />

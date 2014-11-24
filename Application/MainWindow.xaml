@@ -15,14 +15,8 @@
 			<RoutedUICommand x:Key="DeleteNode"/>
 			<RoutedUICommand x:Key="DeleteLink"/>
 			
-			<DataTemplate DataType="{x:Type NetworkVM:Node}">
-				<DockPanel	Name="PART_DockPanel">
-					<DockPanel.Background>
-						<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-					</DockPanel.Background>
-					<Border DockPanel.Dock="Top" Background="LightGray">
-						<Label Content="{Binding Name}"/>
-					</Border>
+			<DataTemplate	DataType="{x:Type NetworkVM:Node}">
+				<DockPanel>
 					<Grid>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="1*"/>
@@ -34,47 +28,32 @@
 				</DockPanel>
 			</DataTemplate>
 			
-			<DataTemplate DataType="{x:Type NetworkVM:Connector}">
+			<DataTemplate	DataType="{x:Type NetworkVM:Connector}">
 				<DockPanel>
 					<NetworkUI:ConnectorItem Width="10" Height="10" DockPanel.Dock="Left"></NetworkUI:ConnectorItem>
 					<Label Content="{Binding Path=Name}"/>
 				</DockPanel>
 			</DataTemplate>
 			
-			<DataTemplate DataType="{x:Type NetworkVM:OutputConnector}">
+			<DataTemplate	DataType="{x:Type NetworkVM:OutputConnector}">
 				<DockPanel>
 					<NetworkUI:ConnectorItem Width="10" Height="10" DockPanel.Dock="Right"></NetworkUI:ConnectorItem>
 					<Label Content="{Binding Path=Name}"/>
 				</DockPanel>
 			</DataTemplate>
 			
-			<DataTemplate DataType="{x:Type NetworkVM:Link}">
-				<local:FancyLink Link="{Binding}" SourceHotspot="{Binding SourceHotspot}" DestinationHotspot="{Binding DestinationHotspot}"/>
-				<!--
-				<Canvas>
-					<Line X1="{Binding Path=SourceHotspot.X}"
-						  Y1="{Binding Path=SourceHotspot.Y}"
-						  X2="{Binding Path=DestinationHotspot.X}"
-						  Y2="{Binding Path=DestinationHotspot.Y}"
-						  StrokeThickness="5">
-						<Line.Stroke>
-							<SolidColorBrush Color="{Binding Path=IsSelected,Converter={Utils:BoolToColorConverter},ConverterParameter=Aqua;Blue}"/>
-						</Line.Stroke>
-					</Line>
-					<Line X1="{Binding Path=GhostSourceHotspot.X}"
-						  Y1="{Binding Path=GhostSourceHotspot.Y}"
-						  X2="{Binding Path=GhostDestinationHotspot.X}"
-						  Y2="{Binding Path=GhostDestinationHotspot.Y}"
-						  StrokeThickness="2"
-						  Visibility="{Binding Path=IsGhostVisible, Converter={Utils:BoolToVisibilityConverter}}">
-						<Line.Stroke>
-							<SolidColorBrush Color="{Binding Path=IsGhostAccepted,Converter={Utils:BoolToColorConverter},ConverterParameter=DarkGreen;Red}"/>
-						</Line.Stroke>
-					</Line>
-					<NetworkUI:EndpointItem Hotspot="{Binding Path=SourceHotspot}" Side="{x:Static NetworkVM:ConnectorType.Source}"/>
-					<NetworkUI:EndpointItem Hotspot="{Binding Path=DestinationHotspot}" Side="{x:Static NetworkVM:ConnectorType.Destination}"/>
-				</Canvas>
-				-->
+			<DataTemplate	DataType="{x:Type NetworkVM:Link}">
+				<local:FancyLink	Link="{Binding}"
+									SourceHotspot="{Binding SourceHotspot}"
+									DestinationHotspot="{Binding DestinationHotspot}">
+					<local:FancyLink.ContextMenu>
+						<ContextMenu>
+							<MenuItem Command="{StaticResource DeleteLink}">
+															
+							</MenuItem>
+						</ContextMenu>
+					</local:FancyLink.ContextMenu>
+				</local:FancyLink>
 			</DataTemplate>
 
 			<!-- Bind NodeItem properties to viewmodel -->
@@ -83,6 +62,28 @@
 				<Setter Property="Y" Value="{Binding Y}" />
 				<Setter Property="ZIndex" Value="{Binding ZIndex}" />
 				<Setter Property="IsSelected" Value="{Binding IsSelected}" />
+				<Setter Property="Title" Value="{Binding Name}"/>
+				<Setter Property="BorderBrush" Value="Black"/>
+				<Setter Property="BorderThickness" Value="1"/>
+				<Setter Property="Background" Value="{x:Static SystemColors.WindowBrush}"/>
+				<Setter Property="CornerRadius" Value="8"/>
+				<Setter Property="BorderFill" Value="{x:Static SystemColors.InactiveCaptionBrush}"/>
+				<Setter Property="InnerCornerRadius" Value="4"/>
+				<Setter Property="ContextMenu">
+					<Setter.Value>
+						<ContextMenu>
+							<MenuItem Command="{StaticResource DeleteNode}" Header="Delete node"></MenuItem>
+						</ContextMenu>
+					</Setter.Value>
+				</Setter>
+				<Style.Triggers>
+					<Trigger Property="IsSelected" Value="True">
+						<Setter Property="BorderFill" Value="{x:Static SystemColors.ActiveCaptionBrush}"/>
+					</Trigger>
+					<Trigger Property="IsSelected" Value="False">
+						<Setter Property="BorderFill" Value="{x:Static SystemColors.InactiveCaptionBrush}"/>
+					</Trigger>
+				</Style.Triggers>
 			</Style>
 			
 			<Style	TargetType="{x:Type NetworkUI:LinkItem}">
@@ -121,31 +122,48 @@
 					</Setter.Value>
 				</Setter>
 			</Style>
-			
+						
 		</ResourceDictionary>
 		
 	</Window.Resources>
 	
+	<Window.CommandBindings>
+
+		<CommandBinding Command="{StaticResource CreateNode}" Executed="CreateNode_Executed"/>
+		<CommandBinding Command="{StaticResource DeleteNode}" Executed="DeleteNode_Executed"/>
+		<CommandBinding Command="{StaticResource DeleteLink}" Executed="DeleteLink_Executed"/>
+
+	</Window.CommandBindings>
+	
+	<Window.ContextMenu>
+		<ContextMenu>
+			<MenuItem Command="{StaticResource CreateNode}" Header="Create Node 1"
+					  CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+		</ContextMenu>
+	</Window.ContextMenu>
+	
 	<Window.DataContext>
 		<local:ApplicationViewModel/>
 	</Window.DataContext>
-	
+
 	<Grid>
-		<NetworkUI:NetworkView	x:Name="PART_NetworkView"
-								NodesSource="{Binding Path=Network.Nodes}"
-								ConnectionsSource="{Binding Path=Network.Links}"
-								ConnectorLinkDragStarted="NetworkView_ConnectionDragStarted"
-								ConnectorLinkDragging="NetworkView_ConnectionDragging"
-								ConnectorLinkDragCompleted="NetworkView_ConnectionDragCompleted"
-								ConnectorLinkFeedbackQuery="NetworkView_ConnectorLinkFeedbackQuery"
-								ConnectorLinkFeedbackResult="NetworkView_ConnectorLinkFeedbackResult"
-								EndpointLinkDragStarted="NetworkView_EndpointLinkDragStarted"
-								EndpointLinkDragging="NetworkView_EndpointLinkDragging"
-								EndpointLinkDragCompleted="NetworkView_EndpointLinkDragCompleted"
-								EndpointLinkFeedbackQuery="NetworkView_EndpointLinkFeedbackQuery"
-								EndpointLinkFeedbackResult="NetworkView_EndpointLinkFeedbackResult">
-		</NetworkUI:NetworkView>
-		<Button VerticalAlignment="Bottom" Height="23" Click="Button_Click"></Button>
+		<Border Background="Transparent">
+			<NetworkUI:NetworkView	x:Name="PART_NetworkView"
+									NodesSource="{Binding Path=Network.Nodes}"
+									ConnectionsSource="{Binding Path=Network.Links}"
+									ConnectorLinkDragStarted="NetworkView_ConnectionDragStarted"
+									ConnectorLinkDragging="NetworkView_ConnectionDragging"
+									ConnectorLinkDragCompleted="NetworkView_ConnectionDragCompleted"
+									ConnectorLinkFeedbackQuery="NetworkView_ConnectorLinkFeedbackQuery"
+									ConnectorLinkFeedbackResult="NetworkView_ConnectorLinkFeedbackResult"
+									EndpointLinkDragStarted="NetworkView_EndpointLinkDragStarted"
+									EndpointLinkDragging="NetworkView_EndpointLinkDragging"
+									EndpointLinkDragCompleted="NetworkView_EndpointLinkDragCompleted"
+									EndpointLinkFeedbackQuery="NetworkView_EndpointLinkFeedbackQuery"
+									EndpointLinkFeedbackResult="NetworkView_EndpointLinkFeedbackResult">
+			</NetworkUI:NetworkView>
+		</Border>
+		<Button VerticalAlignment="Bottom" Height="23" Click="Button_Click"/>
 	</Grid>
 	
 </Window>

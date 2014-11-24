@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -16,15 +17,36 @@ using System.Windows.Shapes;
 
 namespace NetworkUI
 {
-	public class NodeItem : ListBoxItem
+	public partial class NodeItem : ListBoxItem
 	{
 		#region DependencyProperties
 
-		internal static readonly DependencyProperty ParentNetworkViewProperty = DependencyProperty.Register(
-			"ParentNetworkView",
-			typeof(NetworkView), 
+		public static readonly DependencyProperty BorderFillProperty = DependencyProperty.Register(
+			"BorderFill",
+			typeof(Brush),
+			typeof(NodeItem));
+
+		public static readonly DependencyProperty CornerRadiusProperty = DependencyProperty.Register(
+			"CornerRadius",
+			typeof(CornerRadius),
+			typeof(NodeItem));
+
+		public static readonly DependencyProperty InnerCornerRadiusProperty = DependencyProperty.Register(
+			"InnerCornerRadius",
+			typeof(CornerRadius),
+			typeof(NodeItem));
+
+		public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(
+			"Title",
+			typeof(string),
 			typeof(NodeItem),
-			new FrameworkPropertyMetadata(ParentNetworkView_PropertyChanged));
+			new FrameworkPropertyMetadata("NodeItem.Title"));
+
+		public static readonly DependencyProperty AllowResizeProperty = DependencyProperty.Register(
+			"AllowResize",
+			typeof(bool),
+			typeof(NodeItem),
+			new FrameworkPropertyMetadata(true));
 
 		public static readonly DependencyProperty XProperty = DependencyProperty.Register(
 			"X",
@@ -39,15 +61,49 @@ namespace NetworkUI
 			new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
 		public static readonly DependencyProperty ZIndexProperty = DependencyProperty.Register(
-			"ZIndex", 
-			typeof(int), 
+			"ZIndex",
+			typeof(int),
 			typeof(NodeItem),
 			new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+		internal static readonly DependencyProperty ParentNetworkViewProperty = DependencyProperty.Register(
+			"ParentNetworkView",
+			typeof(NetworkView),
+			typeof(NodeItem),
+			new FrameworkPropertyMetadata(ParentNetworkView_PropertyChanged));
+		public bool AllowResize
+		{
+			get { return (bool)GetValue(AllowResizeProperty); }
+			set { SetValue(AllowResizeProperty, value); }
+		}
+		public Brush BorderFill
+		{
+			get { return (Brush)GetValue(BorderFillProperty); }
+			set { SetValue(BorderFillProperty, value); }
+		}
+
+		public CornerRadius CornerRadius
+		{
+			get { return (CornerRadius)GetValue(CornerRadiusProperty); }
+			set { SetValue(CornerRadiusProperty, value); }
+		}
+
+		public CornerRadius InnerCornerRadius
+		{
+			get { return (CornerRadius)GetValue(InnerCornerRadiusProperty); }
+			set { SetValue(InnerCornerRadiusProperty, value); }
+		}
 
 		public NetworkView ParentNetworkView
 		{
 			get { return (NetworkView)GetValue(ParentNetworkViewProperty); }
 			set { SetValue(ParentNetworkViewProperty, value); }
+		}
+
+		public string Title
+		{
+			get { return (string)GetValue(TitleProperty); }
+			set { SetValue(TitleProperty, value); }
 		}
 
 		public double X
@@ -73,10 +129,10 @@ namespace NetworkUI
 		#region Properties
 
 		private static readonly double m_DragThreshold = 5;
+		private Point m_DragStartingPos;
 		private bool m_IsControlDown = false;
 		private bool m_IsDragging = false;
 		private bool m_IsLeftMouseDown = false;
-		private Point m_DragStartingPos;
 		private Point m_MousePreviousPos;
 
 		#endregion Properties
@@ -91,10 +147,14 @@ namespace NetworkUI
 		#endregion Constructor
 
 		#region Methods
-
+		public override void OnApplyTemplate()
+		{
+			base.OnApplyTemplate();
+			OnApplyTemplate_Thumbs();
+		}
 		public void BringToFront()
 		{
-			if (ParentNetworkView==null)
+			if (ParentNetworkView == null)
 			{
 				return;
 			}
@@ -191,6 +251,7 @@ namespace NetworkUI
 			{
 				//Ensure the node is selected
 				this.IsSelected = true;
+
 				//Raise new event to update the drag operation
 				Point curMousePoint = e.GetPosition(this.ParentNetworkView);
 
@@ -238,8 +299,8 @@ namespace NetworkUI
 				{
 					m_IsDragging = false;
 					RaiseEvent(new NodeDragCompletedEventArgs(NodeDragCompletedEvent, this, new NodeItem[] { this },
-						m_DragStartingPos.X,m_DragStartingPos.Y,
-						m_MousePreviousPos.X,m_MousePreviousPos.Y));
+						m_DragStartingPos.X, m_DragStartingPos.Y,
+						m_MousePreviousPos.X, m_MousePreviousPos.Y));
 				}
 				else
 				{
@@ -249,6 +310,12 @@ namespace NetworkUI
 				e.Handled = true;
 				ReleaseMouseCapture();
 			}
+		}
+		protected override void OnContentChanged(object oldContent, object newContent)
+		{
+			base.OnContentChanged(oldContent, newContent);
+			this.Width = double.NaN;
+			this.Height = double.NaN;
 		}
 
 		#endregion Methods
@@ -276,6 +343,16 @@ namespace NetworkUI
 			"NodeDragStarted", RoutingStrategy.Bubble,
 			typeof(NodeDragStartedEventHandler), typeof(NodeItem));
 
+		public static readonly RoutedEvent NodeResizeDeltaEvent = EventManager.RegisterRoutedEvent(
+			"NodeResizeDelta", RoutingStrategy.Bubble,
+			typeof(NodeResizeDeltaEventHandler), typeof(NodeItem));
+		public static readonly RoutedEvent NodeResizeStartedEvent = EventManager.RegisterRoutedEvent(
+			"NodeResizeStarted", RoutingStrategy.Bubble,
+			typeof(NodeResizeStartedEventHandler), typeof(NodeItem));
+		public static readonly RoutedEvent NodeResizeCompletedEvent = EventManager.RegisterRoutedEvent(
+			"NodeResizeCompleted", RoutingStrategy.Bubble,
+			typeof(NodeResizeCompletedEventHandler), typeof(NodeItem));
+
 		public event NodeDragCompletedEventHandler NodeDragCompleted
 		{
 			add { AddHandler(NodeDragCompletedEvent, value); }
@@ -292,6 +369,22 @@ namespace NetworkUI
 		{
 			add { AddHandler(NodeDragStartedEvent, value); }
 			remove { RemoveHandler(NodeDragStartedEvent, value); }
+		}
+
+		public event NodeResizeDeltaEventHandler NodeResizeDelta
+		{
+			add { AddHandler(NodeResizeDeltaEvent, value); }
+			remove { RemoveHandler(NodeResizeDeltaEvent, value); }
+		}
+		public event NodeResizeStartedEventHandler NodeResizeStarted
+		{
+			add { AddHandler(NodeResizeStartedEvent, value); }
+			remove { RemoveHandler(NodeResizeStartedEvent, value); }
+		}
+		public event NodeResizeCompletedEventHandler NodeResizeCompleted
+		{
+			add { AddHandler(NodeResizeCompletedEvent, value); }
+			remove { RemoveHandler(NodeResizeCompletedEvent, value); }
 		}
 
 		protected virtual void OnNodeDragCompleted(ICollection nodes, double startX, double startY, double endX, double endY)
@@ -311,6 +404,20 @@ namespace NetworkUI
 			return e.Cancelled;
 		}
 
+		protected virtual void OnNodeResizeDelta(object node, Sides sides, double x, double y)
+		{
+			RaiseEvent(new NodeResizeDeltaEventArgs(NodeResizeDeltaEvent, this, node, sides, x, y));
+		}
+		protected virtual bool OnNodeResizeStarted(object node, Sides sides)
+		{
+			var e = new NodeResizeStartedEventArgs(NodeResizeStartedEvent, this, node, sides);
+			RaiseEvent(e);
+			return e.Cancel;
+		}
+		protected virtual void OnNodeResizeCompleted(object node, Sides sides, double startWidth, double startHeight, double endWidth, double endHeight)
+		{
+			RaiseEvent(new NodeResizeCompletedEventArgs(NodeResizeCompletedEvent, this, node, sides, startWidth, startHeight, endWidth, endHeight));
+		}
 		#endregion Events
 	}
 }

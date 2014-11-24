@@ -102,6 +102,29 @@ namespace NetworkViewModel
 			}
 		}
 
+		public void DeleteSelectedNodes()
+		{
+			Node[] copy = Nodes.ToArray();
+			foreach (Node n in copy)
+			{
+				if (n.IsSelected)
+				{
+					Nodes.Remove(n);
+				}
+			}
+		}
+		public void DeleteSelectedLinks()
+		{
+			Link[] copy = Links.ToArray();
+			foreach(Link l in copy)
+			{
+				if (l.IsSelected)
+				{
+					Links.Remove(l);
+				}
+			}
+		}
+
 		#endregion Methods
 
 		#region Event Handlers

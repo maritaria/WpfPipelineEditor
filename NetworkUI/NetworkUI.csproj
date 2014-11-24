@@ -66,6 +66,9 @@
     <Compile Include="NetworkView_NodeDragEvents.cs">
       <DependentUpon>NetworkView.cs</DependentUpon>
     </Compile>
+    <Compile Include="NetworkView_NodeResizeEvents.cs">
+      <DependentUpon>NetworkView.cs</DependentUpon>
+    </Compile>
     <Compile Include="NodeDragEvents.cs" />
     <Compile Include="NodeItem.cs" />
     <Compile Include="NodeItemsControl.cs" />
@@ -74,6 +77,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeItem_ResizeEvents.cs">
+      <DependentUpon>NodeItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NodeResizeEvents.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

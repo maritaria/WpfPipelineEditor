@@ -50,15 +50,62 @@
 				Value="{Binding X, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
 		<Setter	Property="Canvas.Top"
 				Value="{Binding Y, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
-		<Setter Property="Canvas.ZIndex"
+		<Setter	Property="Canvas.ZIndex"
 				Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
-		<Setter Property="Template">
+		<Setter	Property="HorizontalContentAlignment" Value="Stretch"/>
+		<Setter	Property="VerticalContentAlignment" Value="Stretch"/>
+		<Setter Property="MinWidth" Value="80"/>
+		<Setter Property="MinHeight" Value="60"/>
+		<Setter	Property="Template">
 			<Setter.Value>
 				<ControlTemplate	TargetType="{x:Type local:NodeItem}">
-					<Border	Background="{TemplateBinding Background}"
+					<Border	Background="{TemplateBinding BorderFill}"
 							BorderBrush="{TemplateBinding BorderBrush}"
-							BorderThickness="{TemplateBinding BorderThickness}">
-						<ContentPresenter/>
+							BorderThickness="{TemplateBinding BorderThickness}"
+							CornerRadius="{TemplateBinding CornerRadius}">
+						<Grid	Margin="-2">
+							<Grid.Resources>
+								<Style	TargetType="Thumb">
+									<Setter	Property="Template">
+										<Setter.Value>
+											<ControlTemplate>
+												<Rectangle	Fill="Transparent"/>
+											</ControlTemplate>
+										</Setter.Value>
+									</Setter>
+								</Style>
+							</Grid.Resources>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition	Width="6"/>
+								<ColumnDefinition	Width="*"/>
+								<ColumnDefinition	Width="6"/>
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition	Height="6"/>
+								<RowDefinition	Height="*"/>
+								<RowDefinition	Height="6"/>
+							</Grid.RowDefinitions>
+							<!-- Edge Thumbs -->
+							<Thumb Grid.Column="1" Grid.Row="0" Name="PART_Thumb_Top" Cursor="SizeNS"/><!-- Top center-->
+							<Thumb Grid.Column="1" Grid.Row="2" Name="PART_Thumb_Bottom" Cursor="SizeNS"/><!-- Bottom center-->
+							<Thumb Grid.Column="0" Grid.Row="1" Name="PART_Thumb_Left" Cursor="SizeWE"/><!-- Center left-->
+							<Thumb Grid.Column="2" Grid.Row="1" Name="PART_Thumb_Right" Cursor="SizeWE"/><!-- Center right-->
+							<!-- Corner Thumbs-->
+							<Thumb Grid.Column="0" Grid.Row="0" Name="PART_Thumb_TopLeft" Cursor="SizeNWSE"/><!-- Top left-->
+							<Thumb Grid.Column="2" Grid.Row="0" Name="PART_Thumb_TopRight" Cursor="SizeNESW"/><!-- Top right-->
+							<Thumb Grid.Column="0" Grid.Row="2" Name="PART_Thumb_BottomLeft" Cursor="SizeNESW"/><!-- Bottom left-->
+							<Thumb Grid.Column="2" Grid.Row="2" Name="PART_Thumb_BottomRight" Cursor="SizeNWSE"/><!-- Bottom right-->
+							<!-- Content -->
+							<DockPanel	Grid.Column="1" Grid.Row="1">
+								<Label	Content="{TemplateBinding Title}" DockPanel.Dock="Top" Padding="4,2"/>
+								<Border	Background="{TemplateBinding Background}"
+										BorderBrush="{TemplateBinding BorderBrush}"
+										BorderThickness="{TemplateBinding BorderThickness}"
+										CornerRadius="{TemplateBinding InnerCornerRadius}">
+									<ContentPresenter/>
+								</Border>
+							</DockPanel>
+						</Grid>
 					</Border>
 				</ControlTemplate>
 			</Setter.Value>
@@ -72,7 +119,7 @@
 				Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:NodeItem}}, Path=.}"/>
 		<Setter	Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type local:ConnectorItem}">
+				<ControlTemplate	TargetType="{x:Type local:ConnectorItem}">
 					<ContentPresenter/>
 				</ControlTemplate>
 			</Setter.Value>
@@ -86,8 +133,8 @@
 				Value="{Binding ZIndex, RelativeSource={RelativeSource Self}, Mode=TwoWay}"/>
 		<Setter	Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type local:LinkItem}">
-					<Border Background="{TemplateBinding Background}"
+				<ControlTemplate	TargetType="{x:Type local:LinkItem}">
+					<Border	Background="{TemplateBinding Background}"
 							BorderBrush="{TemplateBinding BorderBrush}"
 							BorderThickness="{TemplateBinding BorderThickness}">
 						<ContentPresenter/>
@@ -107,4 +154,5 @@
 		<Setter Property="Canvas.Top"
 				Value="{Binding RelativeSource={RelativeSource Self}, Path=Hotspot.Y}"/>
 	</Style>
+	
 </ResourceDictionary>

@@ -129,7 +129,9 @@ namespace Utils
 
 		public bool Remove(T item)
 		{
-			return m_List.Remove(item);
+			bool result = m_List.Remove(item);
+			OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
+			return result;
 		}
 
 		#endregion ICollection<T> Members
