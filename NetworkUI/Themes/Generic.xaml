@@ -60,14 +60,6 @@
 							BorderThickness="{TemplateBinding BorderThickness}">
 						<ContentPresenter/>
 					</Border>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter Property="Background" Value="Aqua"/>
-						</Trigger>
-						<Trigger Property="IsSelected" Value="False">
-							<Setter Property="Background" Value="Yellow"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

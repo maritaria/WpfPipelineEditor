@@ -79,6 +79,39 @@ namespace Utils
 		#endregion
 	}
 
+	public class PointGroupCenterConverter : ConverterBase, IMultiValueConverter
+	{
+		public PointGroupCenterConverter()
+		{
+
+		}
+
+		#region IMultiValueConverter Members
+
+		public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+		{
+			foreach(object o in values)
+			{
+				if (o == DependencyProperty.UnsetValue)
+				{
+					return null;
+				}
+			}
+			Point total = new Point(0, 0);
+			foreach(Point p in values)
+			{
+				total.Offset(p.X, p.Y);
+			}
+			return new Point(total.X / values.Length, total.Y / values.Length);
+		}
+
+		public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
+	}
 	public class PointShiftConverter : ConverterBase, IValueConverter
 	{
 		public PointShiftConverter()

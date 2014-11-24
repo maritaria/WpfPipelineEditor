@@ -11,9 +11,16 @@
 		
 		<ResourceDictionary>
 			
+			<RoutedUICommand x:Key="CreateNode"/>
+			<RoutedUICommand x:Key="DeleteNode"/>
+			<RoutedUICommand x:Key="DeleteLink"/>
+			
 			<DataTemplate DataType="{x:Type NetworkVM:Node}">
-				<DockPanel>
-					<Border DockPanel.Dock="Top" Background="Red">
+				<DockPanel	Name="PART_DockPanel">
+					<DockPanel.Background>
+						<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+					</DockPanel.Background>
+					<Border DockPanel.Dock="Top" Background="LightGray">
 						<Label Content="{Binding Name}"/>
 					</Border>
 					<Grid>
@@ -42,6 +49,8 @@
 			</DataTemplate>
 			
 			<DataTemplate DataType="{x:Type NetworkVM:Link}">
+				<local:FancyLink Link="{Binding}" SourceHotspot="{Binding SourceHotspot}" DestinationHotspot="{Binding DestinationHotspot}"/>
+				<!--
 				<Canvas>
 					<Line X1="{Binding Path=SourceHotspot.X}"
 						  Y1="{Binding Path=SourceHotspot.Y}"
@@ -65,6 +74,7 @@
 					<NetworkUI:EndpointItem Hotspot="{Binding Path=SourceHotspot}" Side="{x:Static NetworkVM:ConnectorType.Source}"/>
 					<NetworkUI:EndpointItem Hotspot="{Binding Path=DestinationHotspot}" Side="{x:Static NetworkVM:ConnectorType.Destination}"/>
 				</Canvas>
+				-->
 			</DataTemplate>
 
 			<!-- Bind NodeItem properties to viewmodel -->

@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Converters.cs" />
     <Compile Include="PointOverload.cs" />
+    <Compile Include="RoutedCommandOverload.cs" />
     <Compile Include="UniqueObservableList.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

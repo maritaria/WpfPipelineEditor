@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using Utils;
 
 namespace NetworkUI
 {
@@ -72,12 +74,12 @@ namespace NetworkUI
 			typeof(NetworkView),
 			new FrameworkPropertyMetadata(new ObservableCollection<object>()));
 
-		#region DependencyProperties from Keys
+		#region DependencyProperties from keys
 
 		public static readonly DependencyProperty ConnectionsProperty = ConnectionsPropertyKey.DependencyProperty;
 		public static readonly DependencyProperty NodesProperty = NodesPropertyKey.DependencyProperty;
 
-		#endregion DependencyProperties from Keys
+		#endregion DependencyProperties from keys
 
 		public Style ConnectionItemContainerStyle
 		{
@@ -143,38 +145,10 @@ namespace NetworkUI
 
 		#region Properties
 
-		private List<object> m_InitialNodeSelection = new List<object>();
 		private List<object> m_InitialLinkSelection = new List<object>();
+		private List<object> m_InitialNodeSelection = new List<object>();
 		private LinkItemsControl m_LinkItemsControl = null;
 		private NodeItemsControl m_NodeItemsControl = null;
-
-		public object SelectedNode
-		{
-			get
-			{
-				if (m_NodeItemsControl != null)
-				{
-					return m_NodeItemsControl.SelectedItem;
-				}
-				if (m_InitialNodeSelection.Count != 1)
-				{
-					return null;
-				}
-				return m_InitialNodeSelection[0];
-			}
-			set
-			{
-				if (m_NodeItemsControl != null)
-				{
-					m_NodeItemsControl.SelectedItem = value;
-				}
-				else
-				{
-					m_InitialNodeSelection.Clear();
-					m_InitialNodeSelection.Add(value);
-				}
-			}
-		}
 
 		public object SelectedLink
 		{
@@ -204,21 +178,6 @@ namespace NetworkUI
 			}
 		}
 
-
-		public IList SelectedNodes
-		{
-			get
-			{
-				if (m_NodeItemsControl != null)
-				{
-					return m_NodeItemsControl.SelectedItems;
-				}
-				else
-				{
-					return m_InitialNodeSelection;
-				}
-			}
-		}
 		public IList SelectedLinks
 		{
 			get
@@ -234,6 +193,49 @@ namespace NetworkUI
 			}
 		}
 
+		public object SelectedNode
+		{
+			get
+			{
+				if (m_NodeItemsControl != null)
+				{
+					return m_NodeItemsControl.SelectedItem;
+				}
+				if (m_InitialNodeSelection.Count != 1)
+				{
+					return null;
+				}
+				return m_InitialNodeSelection[0];
+			}
+			set
+			{
+				if (m_NodeItemsControl != null)
+				{
+					m_NodeItemsControl.SelectedItem = value;
+				}
+				else
+				{
+					m_InitialNodeSelection.Clear();
+					m_InitialNodeSelection.Add(value);
+				}
+			}
+		}
+
+		public IList SelectedNodes
+		{
+			get
+			{
+				if (m_NodeItemsControl != null)
+				{
+					return m_NodeItemsControl.SelectedItems;
+				}
+				else
+				{
+					return m_InitialNodeSelection;
+				}
+			}
+		}
+
 		#endregion Properties
 
 		#region Constructor
@@ -241,7 +243,23 @@ namespace NetworkUI
 		static NetworkView()
 		{
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(NetworkView), new FrameworkPropertyMetadata(typeof(NetworkView)));
+
+			//Register commands
+			SelectAllNodesCommand = new RoutedCommand("SelectAllNodes", typeof(NetworkView), new InputGestureCollection() { new KeyGesture(Key.A, ModifierKeys.Control) });
+			DeselectAllNodesCommand = new RoutedCommand("DeselectAllNodes", typeof(NetworkView), new InputGestureCollection() { new KeyGesture(Key.Escape) });
+			SelectAllNodesAndLinksCommand = new RoutedCommand("SelectAllNodesAndLinks", typeof(NetworkView), new InputGestureCollection() { new KeyGesture(Key.A, ModifierKeys.Control | ModifierKeys.Alt) });
+			DeselectAllLinksCommand = new RoutedCommand("DeselectAllLinks", typeof(NetworkView), new InputGestureCollection() { new KeyGesture(Key.Escape) });
+			CancelNodeDragCommand = new RoutedCommand("CancelNodeDrag", typeof(NetworkView));
+			CancelLinkDragCommand = new RoutedCommand("CancelLinkDrag", typeof(NetworkView));
+			//Register Bindings
+			SelectAllNodesCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(SelectAllNodes_Executed));
+			DeselectAllNodesCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(DeselectAllNodes_Executed));
+			SelectAllNodesAndLinksCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(SelectAllNodesAndLinks_Executed));
+			DeselectAllLinksCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(DeselectAllLinks_Executed));
+			CancelNodeDragCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(CancelNodeDrag_Executed));
+			CancelLinkDragCommand.SimpleBind(typeof(NetworkView), new ExecutedRoutedEventHandler(CancelLinkDrag_Executed));
 		}
+
 
 		public NetworkView()
 		{
@@ -315,6 +333,30 @@ namespace NetworkUI
 			m_LinkItemsControl.SelectionChanged += PART_Links_SelectionChanged;
 		}
 
+		public void SelectAllNodes()
+		{
+			throw new NotImplementedException();
+		}
+		public void DeselectAllNodes()
+		{
+			throw new NotImplementedException();
+		}
+		public void SelectAllNodesAndLinks()
+		{
+			throw new NotImplementedException();
+		}
+		public void DeselectAllLinks()
+		{
+			throw new NotImplementedException();
+		}
+		public void CancelLinkDrag()
+		{
+			throw new NotImplementedException();
+		}
+		public void CancelNodeDrag()
+		{
+			throw new NotImplementedException();
+		}
 		internal NodeItem FindAssociatedNodeItem(object node)
 		{
 			//Gets the NodeItem control that is or represents the node
@@ -470,7 +512,6 @@ namespace NetworkUI
 
 		#region Events
 
-
 		public static readonly RoutedEvent NodeDragCompletedEvent = EventManager.RegisterRoutedEvent(
 			"NodeDragCompleted", RoutingStrategy.Bubble,
 			typeof(NodeDragCompletedEventHandler), typeof(NetworkView));
@@ -483,6 +524,7 @@ namespace NetworkUI
 			"NodeDragStarted", RoutingStrategy.Bubble,
 			typeof(NodeDragStartedEventHandler), typeof(NetworkView));
 
+		public event SelectionChangedEventHandler LinkSelectionChanged;
 
 		public event NodeDragCompletedEventHandler NodeDragCompleted
 		{
@@ -503,7 +545,14 @@ namespace NetworkUI
 		}
 
 		public event SelectionChangedEventHandler NodeSelectionChanged;
-		public event SelectionChangedEventHandler LinkSelectionChanged;
+
+		protected virtual void OnLinkSelectionChanged(SelectionChangedEventArgs e)
+		{
+			if (LinkSelectionChanged != null)
+			{
+				LinkSelectionChanged(this, e);
+			}
+		}
 
 		protected virtual void OnNodeDragCompleted(ICollection nodes, double startX, double startY, double endX, double endY)
 		{
@@ -529,14 +578,47 @@ namespace NetworkUI
 				NodeSelectionChanged(this, e);
 			}
 		}
-		protected virtual void OnLinkSelectionChanged(SelectionChangedEventArgs e)
-		{
-			if (LinkSelectionChanged != null)
-			{
-				LinkSelectionChanged(this, e);
-			}
-		}
 
 		#endregion Events
+
+		#region Routed Commands
+
+		public static readonly RoutedCommand CancelLinkDragCommand;
+		public static readonly RoutedCommand CancelNodeDragCommand;
+		public static readonly RoutedCommand DeselectAllLinksCommand;
+		public static readonly RoutedCommand DeselectAllNodesCommand;
+		public static readonly RoutedCommand SelectAllNodesAndLinksCommand;
+		public static readonly RoutedCommand SelectAllNodesCommand;
+
+		private static void SelectAllNodes_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).SelectAllNodes();
+		}
+		private static void CancelLinkDrag_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).CancelLinkDrag();
+		}
+
+		private static void CancelNodeDrag_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).CancelNodeDrag();
+		}
+
+		private static void DeselectAllLinks_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).DeselectAllLinks();
+		}
+
+		private static void SelectAllNodesAndLinks_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).SelectAllNodesAndLinks();
+		}
+
+		private static void DeselectAllNodes_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			(sender as NetworkView).DeselectAllNodes();
+		}
+
+		#endregion Routed Commands
 	}
 }
