@@ -1,5 +1,7 @@
-﻿using NetworkUI;
+﻿using EditorApplication.Processors;
+using NetworkUI;
 using NetworkVM;
+using PipelineVM;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,7 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading;
 using System.Windows.Data;
+using System.Reflection;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -26,11 +30,11 @@ namespace EditorApplication
 	{
 		#region Properties
 
-		public ApplicationViewModel ViewModel
+		public MainViewModel ViewModel
 		{
 			get
 			{
-				return DataContext as ApplicationViewModel;
+				return DataContext as MainViewModel;
 			}
 		}
 
@@ -51,7 +55,7 @@ namespace EditorApplication
 		{
 			Connector closest = null;
 			bool isAccepted = false;
-			foreach (Node node in ViewModel.Network.Nodes)
+			foreach (Node node in ViewModel.Pipeline.Nodes)
 			{
 				IEnumerable<Connector> connectors;
 				if (!wantedType.HasValue && linkEndpoint == null)
@@ -116,23 +120,38 @@ namespace EditorApplication
 
 		private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			Point mousepos = Mouse.GetPosition(PART_NetworkView);
-			Node n = new Node(this.ViewModel.Network)
-			{
-				Name = "Node " +(ViewModel.Network.Nodes.Count + 1),
-				X = mousepos.X,
-				Y = mousepos.Y,
-			};
+			ViewModel.CreateProcessor((TypeInfo)e.Parameter,Mouse.GetPosition(PART_NetworkView));
 		}
 
 		private void DeleteLink_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.Network.DeleteSelectedLinks();
+			ViewModel.Pipeline.DeleteSelectedLinks();
 		}
 
 		private void DeleteNode_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.Network.DeleteSelectedNodes();
+			ViewModel.Pipeline.DeleteSelectedNodes();
+		}
+
+		private void DeleteSelection_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Pipeline.DeleteSelectedLinks();
+			ViewModel.Pipeline.DeleteSelectedNodes();
+		}
+
+		private void DirectInputProcessor_FireOutput_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			Button button = e.OriginalSource as Button;
+			if (button == null)
+			{
+				return;
+			}
+			DirectInputProcessor dip = button.DataContext as DirectInputProcessor;
+			if (dip == null)
+			{
+				return;
+			}
+			dip.Process();
 		}
 
 		private void NetworkView_ConnectionDragCompleted(object sender, ConnectorLinkDragCompletedEventArgs e)
@@ -141,7 +160,7 @@ namespace EditorApplication
 			link.DisableGhost();
 			Connector connector = e.DraggedOutConnector as Connector;
 			Connector endconnector = e.ConnectorDraggedOver as Connector;
-			ViewModel.Network.ConnectionCompleted(link, connector.Type.Opposite(), endconnector);
+			ViewModel.Pipeline.ConnectionCompleted(link, connector.Type.Opposite(), endconnector);
 		}
 
 		private void NetworkView_ConnectionDragging(object sender, ConnectorLinkDraggingEventArgs e)
@@ -149,7 +168,7 @@ namespace EditorApplication
 			Link link = e.Connection as Link;
 			Connector connector = e.DraggedOutConnector as Connector;
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, connector.Type.Opposite(), mousePos);
+			ViewModel.Pipeline.ConnectionUpdated(link, connector.Type.Opposite(), mousePos);
 		}
 
 		private void NetworkView_ConnectionDragStarted(object sender, ConnectorLinkDragStartedEventArgs e)
@@ -165,7 +184,7 @@ namespace EditorApplication
 				return;
 			}
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			e.Connection = ViewModel.Network.ConnectionStarted(start, mousePos);
+			e.Connection = ViewModel.Pipeline.ConnectionStarted(start, mousePos);
 		}
 
 		private void NetworkView_ConnectorLinkFeedbackQuery(object sender, ConnectorLinkFeedbackQueryEventArgs e)
@@ -204,7 +223,7 @@ namespace EditorApplication
 			ConnectorType draggedSide = (ConnectorType)e.DraggedSide;
 			Connector endConnector = e.EndConnector as Connector;
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionCompleted(link, draggedSide, endConnector);
+			ViewModel.Pipeline.ConnectionCompleted(link, draggedSide, endConnector);
 		}
 
 		private void NetworkView_EndpointLinkDragging(object sender, EndpointLinkDraggingEventArgs e)
@@ -212,7 +231,7 @@ namespace EditorApplication
 			Link link = e.Link as Link;
 			ConnectorType type = (ConnectorType)e.DraggedSide;
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
+			ViewModel.Pipeline.ConnectionUpdated(link, type, mousePos);
 		}
 
 		private void NetworkView_EndpointLinkDragStarted(object sender, EndpointLinkDragStartedEventArgs e)
@@ -220,7 +239,7 @@ namespace EditorApplication
 			Link link = e.Link as Link;
 			ConnectorType type = (ConnectorType)e.DraggedSide;
 			Point mousePos = Mouse.GetPosition(PART_NetworkView);
-			ViewModel.Network.ConnectionUpdated(link, type, mousePos);
+			ViewModel.Pipeline.ConnectionUpdated(link, type, mousePos);
 		}
 
 		private void NetworkView_EndpointLinkFeedbackQuery(object sender, EndpointLinkFeedbackQueryEventArgs e)
@@ -261,5 +280,34 @@ namespace EditorApplication
 		}
 
 		#endregion Event Handlers
+
+		private void Simulation_Run_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Pipeline.Start(false);
+		}
+		private void Simulation_Pause_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Pipeline.Pause(false);
+		}
+		private void Simulation_Stop_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.Pipeline.Stop(false);
+		}
+
+
+		private void NetworkViewContainer_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+		}
+
+		private void NetworkViewContainer_MouseMove(object sender, MouseEventArgs e)
+		{
+#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+		}
+
+		private void NetworkViewContainer_MouseUp(object sender, MouseButtonEventArgs e)
+		{
+#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+		}
 	}
 }

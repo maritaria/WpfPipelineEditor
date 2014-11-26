@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace PipelineVM
 {
 	/// <summary>
-	/// Interaction logic for App.xaml
+	/// Interface for bridging simularities between input and output channels
 	/// </summary>
-	public partial class App : Application
+	public interface IChannel
 	{
 	}
 }

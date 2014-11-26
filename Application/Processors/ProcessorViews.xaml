@@ -1,0 +1,76 @@
+﻿<ResourceDictionary	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					xmlns:local="clr-namespace:EditorApplication"
+					xmlns:processors="clr-namespace:EditorApplication.Processors"
+					xmlns:NetworkUI="clr-namespace:NetworkUI;assembly=NetworkUI"
+					xmlns:NetworkVM="clr-namespace:NetworkVM;assembly=NetworkVM"
+					xmlns:PipelineVM ="clr-namespace:PipelineVM;assembly=PipelineVM"
+					xmlns:Oxy="http://oxyplot.org/wpf"
+					xmlns:Utils="clr-namespace:Utils;assembly=Utils">
+	
+	<!-- Base template, wraps all nodes in the networkview -->
+	
+	<DataTemplate x:Key="NodeBaseDataTemplate">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			<Grid Name="PART_CustomGridPanel"/>
+			<ItemsControl ItemsSource="{Binding InputConnectors}" Focusable="False"/>
+			<ItemsControl ItemsSource="{Binding OutputConnectors}" Focusable="False" Grid.Column="1"/>
+		</Grid>
+	</DataTemplate>
+
+	<!-- Default template for nodes-->
+	
+	<DataTemplate	DataType="{x:Type NetworkVM:Node}">
+		<ContentPresenter	Content="{Binding}" 
+							ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+	</DataTemplate>
+
+	<!-- Type specific implementations-->
+
+	<RoutedUICommand x:Key="DirectInputProcessor_FireOutput"/>
+	<DataTemplate DataType="{x:Type processors:DirectInputProcessor}">
+		<DockPanel>
+			<TextBox	Text="{Binding OutputValue, Converter={Utils:DoubleToStringConverter}}"
+						DockPanel.Dock="Top"/>
+			<Button	Content="Fire Output"
+					Command="{StaticResource DirectInputProcessor_FireOutput}"
+					DockPanel.Dock="Top"/>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
+	
+	<DataTemplate DataType="{x:Type processors:ConstantSource}">
+		<DockPanel>
+			<TextBox	Text="{Binding OutputValue, Converter={Utils:DoubleToStringConverter}}"
+						DockPanel.Dock="Top"/>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
+
+	<DataTemplate DataType="{x:Type processors:DirectOutputProcessor}">
+		<DockPanel>
+			<ContentControl	Content="{Binding Data, FallbackValue=no_value}"
+							DockPanel.Dock="Top"/>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
+
+	<DataTemplate DataType="{x:Type processors:PlotProcessor}">
+		<DockPanel>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"
+								DockPanel.Dock="Bottom"/>
+			<Oxy:PlotView	Model="{Binding OxyPlotModel}" Title="{Binding Name}"/>
+		</DockPanel>
+	</DataTemplate>
+
+	
+	
+</ResourceDictionary>

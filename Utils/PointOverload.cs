@@ -16,5 +16,10 @@ namespace Utils
 		{
 			return new Point(end.X - start.X, end.Y - start.Y);
 		}
+		public static Point Normalize(this Point vector)
+		{
+			double length = vector.Length();
+			return new Point(vector.X / length, vector.Y / length);
+		}
 	}
 }

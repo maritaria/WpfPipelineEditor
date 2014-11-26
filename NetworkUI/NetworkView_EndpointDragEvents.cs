@@ -63,7 +63,6 @@ namespace NetworkUI
 		{
 			Focus();
 			e.Handled = true;
-
 			//Get datacontexts
 			m_DraggedEndpoint = (EndpointItem)e.OriginalSource;
 			var linkItem = m_DraggedEndpoint.ParentLinkItem;

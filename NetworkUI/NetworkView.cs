@@ -348,7 +348,7 @@ namespace NetworkUI
 		}
 		public void DeselectAllLinks()
 		{
-			throw new NotImplementedException();
+			SelectedLinks.Clear();
 		}
 		public void CancelLinkDrag()
 		{
@@ -368,7 +368,7 @@ namespace NetworkUI
 			}
 			return nodeItem;
 		}
-
+		
 		#endregion Methods
 
 		#region Event Handlers

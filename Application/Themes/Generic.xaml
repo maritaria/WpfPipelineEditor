@@ -10,19 +10,55 @@
 			<Setter.Value>
 				<ControlTemplate	TargetType="{x:Type local:FancyLink}">
 					<Canvas>
-						<Path	Name="PART_Path" StrokeThickness="8">
+						<Path	Name="PART_Path" StrokeThickness="6">
 							<Path.Stroke>
 								<LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
 									<GradientStop Color="Red" Offset="0"/>
+									<GradientStop Color="Red" Offset="0.45"/>
+									<GradientStop Color="Lime" Offset="0.55"/>
 									<GradientStop Color="Lime" Offset="1"/>
 								</LinearGradientBrush>
 							</Path.Stroke>
+							<Path.Effect>
+								<DropShadowEffect	x:Name="NeonEffect"
+													ShadowDepth="0"
+													Color="Blue"
+													Opacity="0"
+													BlurRadius="5">
+								</DropShadowEffect>
+							</Path.Effect>
 						</Path>
 						<NetworkUI:EndpointItem	Side="{x:Static NetworkVM:ConnectorType.Source }"
-												Hotspot="{Binding SourceHotspot, Converter={Utils:PointShiftConverter},ConverterParameter=20;0}"/>
+												Hotspot="{Binding SourceHotspot, Converter={Utils:PointShiftConverter},ConverterParameter=12;0}"/>
 						<NetworkUI:EndpointItem	Side="{x:Static NetworkVM:ConnectorType.Destination }"
-												Hotspot="{Binding DestinationHotspot, Converter={Utils:PointShiftConverter},ConverterParameter=-20;0}"/>
+												Hotspot="{Binding DestinationHotspot, Converter={Utils:PointShiftConverter},ConverterParameter=-12;0}"/>
 					</Canvas>
+					<ControlTemplate.Triggers>
+						<DataTrigger	Binding="{Binding IsSelected}" Value="True">
+							<DataTrigger.EnterActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation	Storyboard.TargetProperty="Opacity"
+															Storyboard.TargetName="NeonEffect"
+															From="0" To="1"
+															Duration="0:0:0.2"
+															FillBehavior="HoldEnd"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</DataTrigger.EnterActions>
+							<DataTrigger.ExitActions>
+								<BeginStoryboard>
+									<Storyboard>
+										<DoubleAnimation	Storyboard.TargetProperty="Opacity"
+															Storyboard.TargetName="NeonEffect"
+															From="1" To="0"
+															Duration="0:0:0.2"
+															FillBehavior="HoldEnd"/>
+									</Storyboard>
+								</BeginStoryboard>
+							</DataTrigger.ExitActions>
+						</DataTrigger>
+					</ControlTemplate.Triggers>
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

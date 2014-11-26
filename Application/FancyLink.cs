@@ -105,6 +105,21 @@ namespace EditorApplication
 			figure.StartPoint = sourceStart;
 			figure.Segments.Add(new QuadraticBezierSegment(sourceControl, halfway, true));
 			figure.Segments.Add(new QuadraticBezierSegment(destinationControl, destinationStart, true));
+
+			Point delta = PointOverload.Delta(DestinationHotspot,SourceHotspot);
+
+			PART_Path.Stroke = new LinearGradientBrush()
+			{
+				StartPoint = new Point(0, 0),
+				EndPoint = delta.Normalize(),
+				GradientStops =
+				{
+					new GradientStop(Colors.Red, 0),
+					new GradientStop(Colors.Red, 0.45),
+					new GradientStop(Colors.Lime, 0.55),
+					new GradientStop(Colors.Lime, 1),
+				},
+			};
 		}
 
 		#endregion Methods

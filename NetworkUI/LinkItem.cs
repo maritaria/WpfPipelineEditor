@@ -120,6 +120,7 @@ namespace NetworkUI
 				{
 					//There are no items selected, this item becomes the selection
 					IsSelected = true;
+					BringToFront();
 				}
 				else if (ParentNetworkView.SelectedLinks.Contains(this) ||
 						 ParentNetworkView.SelectedLinks.Contains(DataContext))
@@ -131,6 +132,7 @@ namespace NetworkUI
 					//Link is not selected, clear selection and select this item
 					ParentNetworkView.SelectedLinks.Clear();
 					IsSelected = true;
+					BringToFront();
 				}
 			}
 		}
@@ -187,7 +189,8 @@ namespace NetworkUI
 		protected override void OnMouseDown(MouseButtonEventArgs e)
 		{
 			base.OnMouseDown(e);
-#warning TODO: drag functionality will move closest endpoint to the mouse
+			BringToFront();
+			//LeftMouseDownSelectionLogic();
 		}
 
 		protected override void OnMouseMove(MouseEventArgs e)
@@ -199,7 +202,7 @@ namespace NetworkUI
 		protected override void OnMouseUp(MouseButtonEventArgs e)
 		{
 			base.OnMouseUp(e);
-#warning TODO: drag functionality will move closest endpoint to the mouse
+			//LeftMouseUpSelectionLogic();
 		}
 
 		private static void ParentNetworkView_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)

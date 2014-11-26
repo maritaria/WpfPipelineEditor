@@ -21,6 +21,37 @@ namespace Utils
 		}
 	}
 
+	public class DoubleToStringConverter : ConverterBase,IValueConverter
+	{
+		public DoubleToStringConverter()
+		{
+
+		}
+
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return value.ToString();
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			double result = 0;
+			if (double.TryParse((string)value, NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+			{
+				return result;
+			}
+			if (parameter != null)
+			{
+				if (double.TryParse((string)parameter, NumberStyles.Float, CultureInfo.InvariantCulture, out result))
+				{
+					return result;
+				}
+			}
+			return null;
+		}
+
+	}
+
 	public class DoubleShiftConverter : ConverterBase ,IValueConverter
 	{
 		public DoubleShiftConverter()

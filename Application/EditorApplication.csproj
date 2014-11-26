@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="system.windows.controls.ribbon" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -56,6 +57,8 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -73,7 +76,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ApplicationViewModel.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="FancyLink.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -85,6 +88,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Processors\AddProcessor.cs" />
+    <Compile Include="Processors\ConstantSource.cs" />
+    <Compile Include="Processors\DefaultSource.cs" />
+    <Compile Include="Processors\DirectInputProcessor.cs" />
+    <Compile Include="Processors\DirectOutputProcessor.cs" />
+    <Page Include="Processors\ProcessorViews.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="Processors\MultiplyProcessor.cs" />
+    <Compile Include="Processors\PlotProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -116,6 +130,10 @@
     <ProjectReference Include="..\NetworkViewModel\NetworkVM.csproj">
       <Project>{e5ca3385-720a-4ef1-919b-c61a5748206b}</Project>
       <Name>NetworkVM</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PipelineVM\PipelineVM.csproj">
+      <Project>{deae7209-80af-421f-8f9c-0e59a474d8b2}</Project>
+      <Name>PipelineVM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.csproj">
       <Project>{12557796-67ef-4952-ae6d-5867372ed978}</Project>
