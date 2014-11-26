@@ -283,15 +283,27 @@ namespace EditorApplication
 
 		private void Simulation_Run_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.Pipeline.Start(false);
+			ViewModel.Pipeline.WantedStatus = SimulationStatus.Running;
+			BackgroundWorkerWindow window = new BackgroundWorkerWindow();
+			window.BackgroundWorker = ViewModel.Pipeline.SimulationWorker;
+			ViewModel.Pipeline.SimulationWorker.RunWorkerAsync();
+			window.ShowDialog();
 		}
 		private void Simulation_Pause_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.Pipeline.Pause(false);
+			ViewModel.Pipeline.WantedStatus = SimulationStatus.Paused;
+			BackgroundWorkerWindow window = new BackgroundWorkerWindow();
+			window.BackgroundWorker = ViewModel.Pipeline.SimulationWorker;
+			ViewModel.Pipeline.SimulationWorker.RunWorkerAsync();
+			window.ShowDialog();
 		}
 		private void Simulation_Stop_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.Pipeline.Stop(false);
+			ViewModel.Pipeline.WantedStatus = SimulationStatus.Stopped;
+			BackgroundWorkerWindow window = new BackgroundWorkerWindow();
+			window.BackgroundWorker = ViewModel.Pipeline.SimulationWorker;
+			ViewModel.Pipeline.SimulationWorker.RunWorkerAsync();
+			window.ShowDialog();
 		}
 
 
