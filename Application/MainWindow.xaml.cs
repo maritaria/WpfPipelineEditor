@@ -16,13 +16,11 @@ using System.Reflection;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Xml.Schema;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Utils;
+using System.Windows.Controls.Ribbon;
 
 namespace EditorApplication
 {
@@ -124,8 +122,8 @@ namespace EditorApplication
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
-
-			System.Diagnostics.Debugger.Break();
+			ViewModel.Test();
+			//System.Diagnostics.Debugger.Break();
 		}
 
 		private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -335,7 +333,7 @@ namespace EditorApplication
 				m_IsLeftMouseDown = true;
 				m_IsDragging = false;
 				m_MouseDragStart = mousePos;
-				m_ViewOffsetStart = ViewModel.ViewOffset;
+				m_ViewOffsetStart = ViewModel.Pipeline.ViewOffset;
 				NetworkViewContainer.CaptureMouse();
 			}
 		}
@@ -345,7 +343,7 @@ namespace EditorApplication
 			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
 			if (m_IsDragging)
 			{
-				ViewModel.ViewOffset = new Point(m_ViewOffsetStart.X + (mousePos.X - m_MouseDragStart.X), m_ViewOffsetStart.Y + (mousePos.Y - m_MouseDragStart.Y));
+				ViewModel.Pipeline.ViewOffset = new Point(m_ViewOffsetStart.X + (mousePos.X - m_MouseDragStart.X), m_ViewOffsetStart.Y + (mousePos.Y - m_MouseDragStart.Y));
 			}
 			else if (m_IsLeftMouseDown)
 			{
@@ -375,22 +373,22 @@ namespace EditorApplication
 				return;
 			}
 			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
-			double zoomStart = ViewModel.ViewZoom;
+			double zoomStart = ViewModel.Pipeline.ViewZoom;
 			if (e.Delta > 0)
 			{
 				//Up, zoom in
-				ViewModel.ViewZoom *= 1.1;
+				ViewModel.Pipeline.ViewZoom *= 1.1;
 			}
 			if (e.Delta < 0)
 			{
 				//Down, zoom out
-				ViewModel.ViewZoom /= 1.1;
+				ViewModel.Pipeline.ViewZoom /= 1.1;
 			}
-			double zoomDelta = ViewModel.ViewZoom / zoomStart;
-			Point mouseCoordinate = new Point(mousePos.X - ViewModel.ViewOffset.X, mousePos.Y - ViewModel.ViewOffset.Y);
+			double zoomDelta = ViewModel.Pipeline.ViewZoom / zoomStart;
+			Point mouseCoordinate = new Point(mousePos.X - ViewModel.Pipeline.ViewOffset.X, mousePos.Y - ViewModel.Pipeline.ViewOffset.Y);
 			double horizontalShift = mouseCoordinate.X - (mouseCoordinate.X * zoomDelta);
 			double verticalShift = mouseCoordinate.Y - (mouseCoordinate.Y * zoomDelta);
-			ViewModel.ViewOffset = new Point(ViewModel.ViewOffset.X + horizontalShift, ViewModel.ViewOffset.Y + verticalShift);
+			ViewModel.Pipeline.ViewOffset = new Point(ViewModel.Pipeline.ViewOffset.X + horizontalShift, ViewModel.Pipeline.ViewOffset.Y + verticalShift);
 		}
 
 		private void ResetZoom_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -400,12 +398,12 @@ namespace EditorApplication
 			{
 
 			}
-			double zoomDelta = 1 / ViewModel.ViewZoom;
-			ViewModel.ViewZoom = 1;
-			Point mouseCoordinate = new Point(mousePos.X - ViewModel.ViewOffset.X, mousePos.Y - ViewModel.ViewOffset.Y);
+			double zoomDelta = 1 / ViewModel.Pipeline.ViewZoom;
+			ViewModel.Pipeline.ViewZoom = 1;
+			Point mouseCoordinate = new Point(mousePos.X - ViewModel.Pipeline.ViewOffset.X, mousePos.Y - ViewModel.Pipeline.ViewOffset.Y);
 			double horizontalShift = mouseCoordinate.X - (mouseCoordinate.X * zoomDelta);
 			double verticalShift = mouseCoordinate.Y - (mouseCoordinate.Y * zoomDelta);
-			ViewModel.ViewOffset = new Point(ViewModel.ViewOffset.X + horizontalShift, ViewModel.ViewOffset.Y + verticalShift);
+			ViewModel.Pipeline.ViewOffset = new Point(ViewModel.Pipeline.ViewOffset.X + horizontalShift, ViewModel.Pipeline.ViewOffset.Y + verticalShift);
 		}
 
 		private void AlwaysExecutableCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)

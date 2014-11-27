@@ -196,6 +196,17 @@
 				</Setter>
 			</Style>
 			
+			<RibbonGroupSizeDefinitionBaseCollection x:Key="AllowCollapsible">
+				<RibbonGroupSizeDefinition>
+					<RibbonGroupSizeDefinition.ControlSizeDefinitions>
+						<RibbonControlSizeDefinition ImageSize="Large" IsLabelVisible="True"/>
+						<RibbonControlSizeDefinition ImageSize="Small" IsLabelVisible="True"/>
+						<RibbonControlSizeDefinition ImageSize="Small" IsLabelVisible="True"/>
+						<RibbonControlSizeDefinition ImageSize="Small" IsLabelVisible="True"/>
+					</RibbonGroupSizeDefinition.ControlSizeDefinitions>
+				</RibbonGroupSizeDefinition>
+			</RibbonGroupSizeDefinitionBaseCollection>
+			
 		</ResourceDictionary>
 		
 	</Window.Resources>
@@ -252,7 +263,10 @@
 	<DockPanel>
 		<Ribbon DockPanel.Dock="Top">
 			<RibbonTab Header="Main">
-				<RibbonGroup Header="File">
+				<RibbonGroup Header="File" GroupSizeDefinitions="{StaticResource AllowCollapsible}">
+					<RibbonButton Label="Load" LargeImageSource="pack://application:,,,/Resources/folder.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
+					<RibbonButton Label="Save" LargeImageSource="pack://application:,,,/Resources/save1.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
+					<RibbonButton Label="Save as" LargeImageSource="pack://application:,,,/Resources/save2.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}" />
 				</RibbonGroup>
 				<RibbonGroup Header="Simulation">
 					<RibbonSplitButton Label="{Binding Path=Pipeline.Status}">

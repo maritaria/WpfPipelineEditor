@@ -45,9 +45,11 @@
     <Compile Include="IChannel.cs" />
     <Compile Include="InputChannel.cs" />
     <Compile Include="InputRequestEvent.cs" />
+    <Compile Include="IPipelineComponent.cs" />
     <Compile Include="ISimulatable.cs" />
     <Compile Include="OutputChannel.cs" />
     <Compile Include="Pipeline.cs" />
+    <Compile Include="PipelineLink.cs" />
     <Compile Include="Processor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

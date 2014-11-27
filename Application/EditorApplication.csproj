@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="system.windows.controls.ribbon" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -122,20 +123,11 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -163,6 +155,27 @@
       <Project>{76a174b7-c529-4117-8ef4-78cf8ae98c28}</Project>
       <Name>NetworkUI</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\SaveFileIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\save2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\folder.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\play.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\stop.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\save1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\reset.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

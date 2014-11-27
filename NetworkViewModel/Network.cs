@@ -39,7 +39,7 @@ namespace NetworkVM
 
 		#region Methods
 
-		public Link ConnectionStarted(Connector start, Point endpoint)
+		public virtual Link ConnectionStarted(Connector start, Point endpoint)
 		{
 			Node node = start.ParentNode;
 			if (node == null)
@@ -48,21 +48,27 @@ namespace NetworkVM
 			}
 			if (node.AllowLinkCreation(start))
 			{
-				Link l = new Link(node.Network);
-				if (start.Type == ConnectorType.Source)
-				{
-					l.SourceConnector = start;
-					l.DestinationHotspot = endpoint;
-				}
-				else
-				{
-					l.DestinationConnector = start;
-					l.SourceHotspot = endpoint;
-				}
-				return l;
+				return CreateLink(start, endpoint);
 			}
 			return null;
 		}
+
+		public virtual Link CreateLink(Connector start, Point endpoint)
+		{
+			Link l = new Link(this);
+			if (start.Type == ConnectorType.Source)
+			{
+				l.SourceConnector = start;
+				l.DestinationHotspot = endpoint;
+			}
+			else
+			{
+				l.DestinationConnector = start;
+				l.SourceHotspot = endpoint;
+			}
+			return l;
+		}
+
 		public void ConnectionUpdated(Link link, ConnectorType draggedSide, Point endpoint)
 		{
 			if (draggedSide == ConnectorType.Source)
@@ -148,13 +154,13 @@ namespace NetworkVM
 				}
 			}
 			IEnumerable removeList = null;
-			if (e.OldItems != null)
-			{
-				removeList = e.OldItems;
-			}
 			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
 			{
-				removeList = Nodes;
+				removeList = Links;
+			}
+			else if (e.OldItems != null)
+			{
+				removeList = e.OldItems;
 			}
 			if (removeList != null)
 			{
@@ -179,13 +185,13 @@ namespace NetworkVM
 		private void Nodes_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			IEnumerable removeList = null;
-			if (e.OldItems != null)
-			{
-				removeList = e.OldItems;
-			}
 			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
 			{
 				removeList = Nodes;
+			}
+			else if (e.OldItems != null)
+			{
+				removeList = e.OldItems;
 			}
 			if (removeList != null)
 			{

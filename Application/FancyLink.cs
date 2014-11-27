@@ -56,7 +56,9 @@ namespace EditorApplication
 		public static readonly DependencyProperty LinkProperty = DependencyProperty.Register(
 			"Link",
 			typeof(Link),
-			typeof(FancyLink));
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(Link_PropertyChanged)));
+
 
 		public static readonly DependencyProperty SourceHotspotProperty = DependencyProperty.Register(
 			"SourceHotspot",
@@ -229,6 +231,10 @@ namespace EditorApplication
 			(d as FancyLink).UpdateGhostPath();
 		}
 
+		private static void Link_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateGhostPath();
+		}
 		private static void IsGhostAccepted_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			(d as FancyLink).UpdateGhostPath();
