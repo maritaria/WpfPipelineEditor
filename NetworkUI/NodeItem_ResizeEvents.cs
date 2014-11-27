@@ -154,6 +154,7 @@ namespace NetworkUI
 		private void Thumbs_DragStarted(Sides sides, Thumb thumb)
 		{
 			m_ResizeStartingSize = this.RenderSize;
+			LeftMouseDownSelectionLogic();
 			if (OnNodeResizeStarted(DataContext, sides))
 			{
 				thumb.CancelDrag();
@@ -206,6 +207,7 @@ namespace NetworkUI
 
 		private void Thumbs_DragCompleted(Sides sides)
 		{
+			LeftMouseUpSelectionLogic();
 			OnNodeResizeCompleted(DataContext, sides, m_ResizeStartingSize.Width, m_ResizeStartingSize.Height, Width, Height);
 		}
 

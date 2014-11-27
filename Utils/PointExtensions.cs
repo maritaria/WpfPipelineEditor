@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 namespace Utils
 {
-	public static class PointOverload
+	public static class PointExtensions
 	{
 		public static double Length(this Point point)
 		{

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows;
+using System.Collections;
 using System.Windows.Media;
 using System.Globalization;
 namespace Utils
@@ -20,7 +21,7 @@ namespace Utils
 			return this;
 		}
 	}
-
+	
 	public class DoubleToStringConverter : ConverterBase,IValueConverter
 	{
 		public DoubleToStringConverter()

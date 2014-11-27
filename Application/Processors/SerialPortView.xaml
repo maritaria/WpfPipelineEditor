@@ -1,0 +1,103 @@
+﻿<UserControl	x:Class="EditorApplication.Processors.SerialPortView"
+				xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				xmlns:ports="clr-namespace:System.IO.Ports;assembly=System"
+				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+				xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+				xmlns:Utils="clr-namespace:Utils;assembly=Utils"
+				xmlns:local="clr-namespace:EditorApplication"
+				xmlns:processors="clr-namespace:EditorApplication.Processors"
+				mc:Ignorable="d" 
+				d:DesignWidth="275" d:DesignHeight="209.783"
+				MinWidth="275">
+	<UserControl.Resources>
+		<ObjectDataProvider ObjectType="{x:Type ports:SerialPort}" MethodName="GetPortNames" x:Key="portNames"/>
+		<Style	TargetType="TextBlock" x:Key="PropertyLabel">
+			<Setter	Property="HorizontalAlignment" Value="Left"/>
+			<Setter	Property="VerticalAlignment" Value="Center"/>
+			<Setter	Property="Margin" Value="10,3,5,3"/>
+			<Setter Property="Grid.Column" Value="0"/>
+		</Style>
+		<Style	TargetType="FrameworkElement" x:Key="PropertyValue">
+			<Setter	Property="VerticalAlignment" Value="Center"/>
+			<Setter	Property="Margin" Value="5,3,10,3"/>
+			<Setter Property="Grid.Column" Value="1"/>
+		</Style>
+	</UserControl.Resources>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+			<RowDefinition Height="auto"/>
+		</Grid.RowDefinitions>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<!-- Portname -->
+		<TextBlock	Text="Portname:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="0"/>
+		<ComboBox	Name="PortNameComboBox"
+					Style="{StaticResource PropertyValue}"
+					Grid.Row="0"
+					ItemsSource="{Binding Source={StaticResource portNames}}"
+					IsEditable="True"
+					LostFocus="PortNameComboBox_LostFocus"/>
+		<!-- BaudRate -->
+		<TextBlock	Text="BaudRate:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="1"/>
+		<TextBox	Name="BaudRateTextBox"
+					Style="{StaticResource PropertyValue}"
+					LostFocus="PortNameComboBox_LostFocus"
+					Text="{Binding SerialPort.BaudRate, Converter={Utils:DoubleToStringConverter}, Mode=OneWayToSource}"
+					Grid.Row="1"/>
+		<!-- Parity -->
+		<TextBlock	Text="Parity:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="2"/>
+		<ComboBox	Name="ParityComboBox"
+					Style="{StaticResource PropertyValue}"
+					Grid.Row="2"
+					ItemsSource="{Binding Source={Utils:Enumeration {x:Type ports:Parity}}}"
+					DisplayMemberPath="Description"
+					SelectedValue="{Binding SerialPort.Parity}"
+					SelectedValuePath="Value"/>
+		<!-- Handshake -->
+		<TextBlock	Text="Handshake:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="3"/>
+		<ComboBox	Name="HandshakeComboBox"
+					Style="{StaticResource PropertyValue}"
+					Grid.Row="3"
+					ItemsSource="{Binding Source={Utils:Enumeration {x:Type ports:Handshake}}}"
+					DisplayMemberPath="Description"
+					SelectedValue="{Binding SerialPort.Handshake}"
+					SelectedValuePath="Value"/>
+		<!-- DataBits -->
+		<TextBlock	Text="DataBits:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="4"/>
+		<TextBox	Name="DataBitsTextBox"
+					Style="{StaticResource PropertyValue}"
+					Text="{Binding SerialPort.DataBits, Converter={Utils:DoubleToStringConverter}, Mode=OneWayToSource}"
+					Grid.Row="4"/>
+		<!-- StopBits -->
+		<TextBlock	Text="StopBits:"
+					Style="{StaticResource PropertyLabel}"
+					Grid.Row="5"/>
+		<ComboBox	Name="StopBitsComboBox"
+					Style="{StaticResource PropertyValue}"
+					Grid.Row="5"
+					ItemsSource="{Binding Source={Utils:Enumeration {x:Type ports:StopBits}}}"
+					DisplayMemberPath="Description"
+					SelectedValue="{Binding SerialPort.StopBits}"
+					SelectedValuePath="Value"/>
+
+	</Grid>
+</UserControl>

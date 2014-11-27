@@ -9,7 +9,7 @@ using Utils;
 
 namespace EditorApplication.Processors
 {
-	public class DirectInputProcessor : Processor
+	public class HumanTrigger : Processor
 	{
 		#region Properties
 
@@ -33,10 +33,10 @@ namespace EditorApplication.Processors
 
 		#region Constructor
 
-		public DirectInputProcessor(Pipeline pipeline)
+		public HumanTrigger(Pipeline pipeline)
 			: base(pipeline)
 		{
-			new OutputChannel(this) { Name = "Out" };
+			new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
 		}
 
 		#endregion Constructor

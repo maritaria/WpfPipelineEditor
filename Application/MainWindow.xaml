@@ -24,25 +24,101 @@
 			<RoutedUICommand x:Key="StartSimulation"/>
 			<RoutedUICommand x:Key="PauseSimulation"/>
 			<RoutedUICommand x:Key="StopSimulation"/>
+			
+			<RoutedUICommand x:Key="ResetZoom"/>
 
 			<DataTemplate	DataType="{x:Type NetworkVM:Connector}">
+				<DataTemplate.Resources>
+					<Style TargetType="{x:Type ItemsControl}" x:Key="HideIfEmpty">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding AcceptedTypes.Count}" Value="0">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+					<Style	TargetType="{x:Type TextBlock}" x:Key="ShowIfNotEmpty">
+						<Setter Property="Visibility" Value="Collapsed"/>
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding AcceptedTypes.Count}" Value="0">
+								<Setter Property="Visibility" Value="Visible"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</DataTemplate.Resources>
 				<DockPanel>
+					<DockPanel.ToolTip>
+						<StackPanel>
+							<TextBlock FontWeight="Bold" Text="Accepted types"/>
+							<ItemsControl	Style="{StaticResource HideIfEmpty}" ItemsSource="{Binding AcceptedTypes}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel IsItemsHost="True"/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding}"></TextBlock>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+							<TextBlock Style="{StaticResource ShowIfNotEmpty}" Text="All types are accepted"></TextBlock>
+						</StackPanel>
+					</DockPanel.ToolTip>
 					<NetworkUI:ConnectorItem Width="10" Height="10" DockPanel.Dock="Left"></NetworkUI:ConnectorItem>
 					<Label Content="{Binding Path=Name}"/>
 				</DockPanel>
 			</DataTemplate>
-			
+
 			<DataTemplate	DataType="{x:Type NetworkVM:OutputConnector}">
+				<DataTemplate.Resources>
+					<Style	TargetType="{x:Type ItemsControl}" x:Key="HideIfEmpty">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding OutputTypes.Count}" Value="0">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+					<Style	TargetType="{x:Type TextBlock}" x:Key="ShowIfNotEmpty">
+						<Setter Property="Visibility" Value="Collapsed"/>
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding OutputTypes.Count}" Value="0">
+								<Setter Property="Visibility" Value="Visible"/>
+							</DataTrigger>
+						</Style.Triggers>
+					</Style>
+				</DataTemplate.Resources>
 				<DockPanel>
-					<NetworkUI:ConnectorItem Width="10" Height="10" DockPanel.Dock="Right"/>
-					<Label Content="{Binding Path=Name}" HorizontalContentAlignment="Right"/>
+					<DockPanel.ToolTip>
+						<StackPanel>
+							<TextBlock	FontWeight="Bold" Text="Output types"/>
+							<ItemsControl	Style="{StaticResource HideIfEmpty}" ItemsSource="{Binding OutputTypes}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel IsItemsHost="True"/>
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding}"></TextBlock>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+							<TextBlock	Style="{StaticResource ShowIfNotEmpty}" Text="Not specified"></TextBlock>
+						</StackPanel>
+					</DockPanel.ToolTip>
+					<NetworkUI:ConnectorItem	Width="10" Height="10" DockPanel.Dock="Right"/>
+					<Label	Content="{Binding Path=Name}" HorizontalContentAlignment="Right"/>
 				</DockPanel>
 			</DataTemplate>
 			
 			<DataTemplate	DataType="{x:Type NetworkVM:Link}">
 				<local:FancyLink	Link="{Binding}"
 									SourceHotspot="{Binding SourceHotspot}"
-									DestinationHotspot="{Binding DestinationHotspot}">
+									DestinationHotspot="{Binding DestinationHotspot}"
+									GhostSourceHotspot="{Binding GhostSourceHotspot}"
+									GhostDestinationHotspot="{Binding GhostDestinationHotspot}"
+									IsGhostAccepted="{Binding IsGhostAccepted}"
+									IsGhostVisible="{Binding IsGhostVisible}">
 					<local:FancyLink.ContextMenu>
 						<ContextMenu>
 							<MenuItem	Command="{StaticResource DeleteLink}" Header="Delete selected link(s)">
@@ -119,13 +195,14 @@
 					</Setter.Value>
 				</Setter>
 			</Style>
-						
+			
 		</ResourceDictionary>
 		
 	</Window.Resources>
 	
 	<Window.CommandBindings>
 
+		<!-- Node commands -->
 		<CommandBinding Command="{StaticResource CreateNode}" Executed="CreateNode_Executed"/>
 		<CommandBinding Command="{StaticResource DeleteNode}" Executed="DeleteNode_Executed"/>
 		<CommandBinding Command="{StaticResource DeleteLink}" Executed="DeleteLink_Executed"/>
@@ -137,12 +214,16 @@
 		<CommandBinding Command="{StaticResource StopSimulation}" Executed="Simulation_Stop_Executed"/>
 		
 		<!-- Processor commands -->
-		<CommandBinding Command="{StaticResource DirectInputProcessor_FireOutput}" Executed="DirectInputProcessor_FireOutput_Executed"/>
+		<CommandBinding Command="{StaticResource Processor_ForceProcess}" Executed="Processor_ForceProcess_Executed"/>
+		
+		<!-- Other commands -->
+		<CommandBinding Command="{StaticResource ResetZoom}" Executed="ResetZoom_Executed"/>
 		
 	</Window.CommandBindings>
 
 	<Window.InputBindings>
 		<KeyBinding Command="{StaticResource DeleteSelection}" Key="Delete"/>
+		<KeyBinding Command="{StaticResource ResetZoom}" Key="Home"/>
 	</Window.InputBindings>
 	
 	<Window.ContextMenu>
@@ -154,10 +235,13 @@
 					<Style>
 						<Setter Property="MenuItem.Header" Value="{Binding Name}"/>
 						<Setter Property="MenuItem.Command" Value="{StaticResource CreateNode}"/>
-						<Setter Property="MenuItem.CommandParameter" Value="{Binding}"/>
+						<Setter Property="MenuItem.CommandParameter" Value="{Binding RelativeSource={RelativeSource Self}}"/>
+						<Setter Property="MenuItem.CommandTarget" Value="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
 					</Style>
 				</MenuItem.ItemContainerStyle>
 			</MenuItem>
+			<MenuItem	Header="Restore Zoom" Command="{StaticResource ResetZoom}"
+						CommandTarget="{Binding Path=PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
 		</ContextMenu>
 	</Window.ContextMenu>
 	
@@ -179,6 +263,9 @@
 						</RibbonSplitButton.Items>
 					</RibbonSplitButton>
 				</RibbonGroup>
+				<RibbonGroup Header="Zoom">
+					<RibbonButton Label="Restore" Command="{StaticResource ResetZoom}"/>
+				</RibbonGroup>
 			</RibbonTab>
 		</Ribbon>
 		<Button DockPanel.Dock="Bottom" Height="23" Click="Button_Click"/>
@@ -187,7 +274,8 @@
 				ClipToBounds="True"
 				MouseDown="NetworkViewContainer_MouseDown"
 				MouseMove="NetworkViewContainer_MouseMove"
-				MouseUp="NetworkViewContainer_MouseUp">
+				MouseUp="NetworkViewContainer_MouseUp"
+				MouseWheel="NetworkViewContainer_MouseWheel">
 			<NetworkUI:NetworkView	x:Name="PART_NetworkView"
 									NodesSource="{Binding Path=Pipeline.Nodes}"
 									ConnectionsSource="{Binding Path=Pipeline.Links}"
@@ -201,6 +289,12 @@
 									EndpointLinkDragCompleted="NetworkView_EndpointLinkDragCompleted"
 									EndpointLinkFeedbackQuery="NetworkView_EndpointLinkFeedbackQuery"
 									EndpointLinkFeedbackResult="NetworkView_EndpointLinkFeedbackResult">
+				<NetworkUI:NetworkView.RenderTransform>
+					<TranslateTransform X="{Binding ViewOffset.X}" Y="{Binding ViewOffset.Y}"/>
+				</NetworkUI:NetworkView.RenderTransform>
+				<NetworkUI:NetworkView.LayoutTransform>
+					<ScaleTransform ScaleX="{Binding ViewZoom}" ScaleY="{Binding ViewZoom}"/>
+				</NetworkUI:NetworkView.LayoutTransform>
 			</NetworkUI:NetworkView>
 		</Border>
 	</DockPanel>

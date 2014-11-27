@@ -29,16 +29,51 @@
 							ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
 	</DataTemplate>
 
+	<!-- Common command for forcing a processor to run its Process() method -->
+	<RoutedUICommand x:Key="Processor_ForceProcess"/>
+	
 	<!-- Type specific implementations-->
 
-	<RoutedUICommand x:Key="DirectInputProcessor_FireOutput"/>
-	<DataTemplate DataType="{x:Type processors:DirectInputProcessor}">
+	<DataTemplate DataType="{x:Type processors:HumanTrigger}">
 		<DockPanel>
 			<TextBox	Text="{Binding OutputValue, Converter={Utils:DoubleToStringConverter}}"
 						DockPanel.Dock="Top"/>
 			<Button	Content="Fire Output"
-					Command="{StaticResource DirectInputProcessor_FireOutput}"
+					Command="{StaticResource Processor_ForceProcess}"
 					DockPanel.Dock="Top"/>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
+	
+	<DataTemplate DataType="{x:Type processors:BurstGenerator}">
+		<DockPanel>
+			<Grid	DockPanel.Dock="Top">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
+				<Label	Content="Staring Value: "
+						Grid.Row="0"/>
+				<TextBox	Text="{Binding StartValue, Converter={Utils:DoubleToStringConverter}, Mode=TwoWay}"
+							Grid.Column="1" Grid.Row="0"
+							HorizontalContentAlignment="Right"/>
+				<Label	Content="Ending Value: "
+						Grid.Row="1"/>
+				<TextBox	Text="{Binding EndValue, Converter={Utils:DoubleToStringConverter}, Mode=TwoWay}"
+							Grid.Column="1" Grid.Row="1"
+							HorizontalContentAlignment="Right"/>
+				<Label	Content="Increment: "
+						Grid.Row="2"/>
+				<TextBox	Text="{Binding IncValue, Converter={Utils:DoubleToStringConverter}, Mode=TwoWay}"
+							Grid.Column="1" Grid.Row="2"
+							HorizontalContentAlignment="Right"/>
+			</Grid>
 			<ContentPresenter	Content="{Binding}" 
 								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
 		</DockPanel>
@@ -53,7 +88,7 @@
 		</DockPanel>
 	</DataTemplate>
 
-	<DataTemplate DataType="{x:Type processors:DirectOutputProcessor}">
+	<DataTemplate DataType="{x:Type processors:ObjectPrinter}">
 		<DockPanel>
 			<ContentControl	Content="{Binding Data, FallbackValue=no_value}"
 							DockPanel.Dock="Top"/>
@@ -71,6 +106,40 @@
 		</DockPanel>
 	</DataTemplate>
 
+	<DataTemplate DataType="{x:Type processors:SerialProcessorBase}">
+		<DockPanel>
+			<processors:SerialPortView SerialProcessor="{Binding}" DockPanel.Dock="Top"/>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
+
+	<DataTemplate DataType="{x:Type processors:CsvDecoder}">
+		<DockPanel>
+			<Grid DockPanel.Dock="Top">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto"/>
+					<RowDefinition Height="auto"/>
+				</Grid.RowDefinitions>
+				<Label	Content="Columns: "
+						Grid.Column="0" Grid.Row="0"/>
+				<TextBox	Text="{Binding ColumnCount, Converter={Utils:DoubleToStringConverter}, Mode=TwoWay}"
+							Grid.Column="1" Grid.Row="0"
+							HorizontalContentAlignment="Right"/>
+				<Label	Content="Column Seperator: "
+						Grid.Column="0" Grid.Row="1"/>
+				<TextBox	Text="{Binding ColumnSeperator, Mode=TwoWay}"
+							Grid.Column="1" Grid.Row="1"
+							HorizontalContentAlignment="Right"/>
+			</Grid>
+			<ContentPresenter	Content="{Binding}" 
+								ContentTemplate="{StaticResource NodeBaseDataTemplate}"/>
+		</DockPanel>
+	</DataTemplate>
 	
 	
 </ResourceDictionary>

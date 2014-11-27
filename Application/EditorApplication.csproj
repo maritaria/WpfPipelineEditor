@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{ECBB756C-9402-4C60-8DF0-B919CF520B5A}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EditorApplication</RootNamespace>
     <AssemblyName>EditorApplication</AssemblyName>
@@ -89,6 +89,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Processors\SerialPortView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -96,16 +100,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Processors\AddProcessor.cs" />
+    <Compile Include="Processors\BurstGenerator.cs" />
     <Compile Include="Processors\ConstantSource.cs" />
+    <Compile Include="Processors\CsvDecoder.cs" />
     <Compile Include="Processors\DefaultSource.cs" />
-    <Compile Include="Processors\DirectInputProcessor.cs" />
-    <Compile Include="Processors\DirectOutputProcessor.cs" />
+    <Compile Include="Processors\HumanTrigger.cs" />
+    <Compile Include="Processors\ObjectPrinter.cs" />
     <Page Include="Processors\ProcessorViews.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Processors\MultiplyProcessor.cs" />
     <Compile Include="Processors\PlotProcessor.cs" />
+    <Compile Include="Processors\SerialPortView.xaml.cs">
+      <DependentUpon>SerialPortView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Processors\SerialProcessorBase.cs" />
+    <Compile Include="Processors\ToAsciiConverter.cs" />
+    <Compile Include="Processors\ToDoubleConverter.cs" />
+    <Compile Include="Processors\ToStringProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -78,6 +78,10 @@ namespace EditorApplication
 
 		private void BackgroundWorkerWindow_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
+			if (e.Error!=null)
+			{
+				MessageBox.Show(e.Error.ToString());
+			}
 			this.Close();
 		}
 

@@ -1,32 +1,48 @@
-﻿using System;
+﻿using PipelineVM;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Utils;
-using PipelineVM;
+
 namespace EditorApplication.Processors
 {
 	public class AddProcessor : Processor
 	{
 		#region Properties
-		#endregion
+
+		private InputChannel m_InputA;
+		private InputChannel m_InputB;
+		private OutputChannel m_Output;
+
+		#endregion Properties
+
 		#region Constructor
 
-		public AddProcessor(Pipeline pipeline) : base(pipeline)
+		public AddProcessor(Pipeline pipeline)
+			: base(pipeline)
 		{
-			new InputChannel(this) { Name = "A" };
-			new InputChannel(this) { Name = "B" };
-			new OutputChannel(this) { Name = "Out" };
+			m_InputA = new InputChannel(this) { Name = "A", AcceptedTypes = { typeof(IConvertible) } };
+			m_InputB = new InputChannel(this) { Name = "B", AcceptedTypes = { typeof(IConvertible) } };
+			m_Output = new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
 		}
-		#endregion
+
+		#endregion Constructor
+
 		#region Methods
+
 		public override void Process()
 		{
-			double a = ReadFromInput("A");
-			double b = ReadFromInput("B");
-			WriteToOutput("Out", a + b);
+			//Since they are convertible, convert them to doubles, which is sufficient for most cases.
+			double a = (m_InputA.Read() as IConvertible).ToDouble(CultureInfo.InvariantCulture);
+			double b = (m_InputB.Read() as IConvertible).ToDouble(CultureInfo.InvariantCulture);
+
+			//Double is automaticly convertible
+			m_Output.Write(a + b);
 		}
-		#endregion
+
+		#endregion Methods
 	}
 }

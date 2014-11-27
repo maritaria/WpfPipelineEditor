@@ -16,6 +16,9 @@ using System.Reflection;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Xml.Schema;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -38,6 +41,12 @@ namespace EditorApplication
 			}
 		}
 
+		private Point m_MouseDragStart;
+		private Point m_ViewOffsetStart;
+		private double m_DraggedDistance = 0;
+		private const double m_DragThreshold = 5;
+		private bool m_IsLeftMouseDown = false;
+		private bool m_IsDragging = false;
 		#endregion Properties
 
 		#region Constructor
@@ -115,12 +124,25 @@ namespace EditorApplication
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
+
 			System.Diagnostics.Debugger.Break();
 		}
 
 		private void CreateNode_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			ViewModel.CreateProcessor((TypeInfo)e.Parameter,Mouse.GetPosition(PART_NetworkView));
+			Point pos;
+			TypeInfo pType = null;
+			if (e.Parameter is MenuItem)
+			{
+				pos = ContextMenu.TranslatePoint(new Point(0, 0), PART_NetworkView);
+				pType = (e.Parameter as MenuItem).DataContext as TypeInfo;
+			}
+			else
+			{
+				pType = e.Parameter as TypeInfo;
+				pos = Mouse.GetPosition(PART_NetworkView);
+			}
+			ViewModel.CreateProcessor(pType, pos);
 		}
 
 		private void DeleteLink_Executed(object sender, ExecutedRoutedEventArgs e)
@@ -139,19 +161,19 @@ namespace EditorApplication
 			ViewModel.Pipeline.DeleteSelectedNodes();
 		}
 
-		private void DirectInputProcessor_FireOutput_Executed(object sender, ExecutedRoutedEventArgs e)
+		private void Processor_ForceProcess_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
-			Button button = e.OriginalSource as Button;
-			if (button == null)
+			FrameworkElement source = e.OriginalSource as FrameworkElement;
+			if (source == null)
 			{
 				return;
 			}
-			DirectInputProcessor dip = button.DataContext as DirectInputProcessor;
-			if (dip == null)
+			Processor p = source.DataContext as HumanTrigger;
+			if (p == null)
 			{
 				return;
 			}
-			dip.Process();
+			p.Process();
 		}
 
 		private void NetworkView_ConnectionDragCompleted(object sender, ConnectorLinkDragCompletedEventArgs e)
@@ -279,7 +301,6 @@ namespace EditorApplication
 			}
 		}
 
-		#endregion Event Handlers
 
 		private void Simulation_Run_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
@@ -306,20 +327,93 @@ namespace EditorApplication
 			window.ShowDialog();
 		}
 
-
 		private void NetworkViewContainer_MouseDown(object sender, MouseButtonEventArgs e)
 		{
-#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
+			if (e.ChangedButton == MouseButton.Left)
+			{
+				m_IsLeftMouseDown = true;
+				m_IsDragging = false;
+				m_MouseDragStart = mousePos;
+				m_ViewOffsetStart = ViewModel.ViewOffset;
+				NetworkViewContainer.CaptureMouse();
+			}
 		}
 
 		private void NetworkViewContainer_MouseMove(object sender, MouseEventArgs e)
 		{
-#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
+			if (m_IsDragging)
+			{
+				ViewModel.ViewOffset = new Point(m_ViewOffsetStart.X + (mousePos.X - m_MouseDragStart.X), m_ViewOffsetStart.Y + (mousePos.Y - m_MouseDragStart.Y));
+			}
+			else if (m_IsLeftMouseDown)
+			{
+				m_DraggedDistance += Math.Abs(mousePos.Delta(m_MouseDragStart).Length());
+				if (m_DraggedDistance > m_DragThreshold)
+				{
+					m_IsDragging = true;
+				}
+			}
 		}
 
 		private void NetworkViewContainer_MouseUp(object sender, MouseButtonEventArgs e)
 		{
-#warning TODO: drag will change the translatetransform on the rendertransformproperty of the networkview, to simulate dragging
+			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
+			if (e.ChangedButton == MouseButton.Left)
+			{
+				m_IsLeftMouseDown = false;
+				m_IsDragging = false;
+				NetworkViewContainer.ReleaseMouseCapture();
+			}
 		}
+
+		private void NetworkViewContainer_MouseWheel(object sender, MouseWheelEventArgs e)
+		{
+			if (e.Source != NetworkViewContainer)
+			{
+				return;
+			}
+			Point mousePos = Mouse.GetPosition(NetworkViewContainer);
+			double zoomStart = ViewModel.ViewZoom;
+			if (e.Delta > 0)
+			{
+				//Up, zoom in
+				ViewModel.ViewZoom *= 1.1;
+			}
+			if (e.Delta < 0)
+			{
+				//Down, zoom out
+				ViewModel.ViewZoom /= 1.1;
+			}
+			double zoomDelta = ViewModel.ViewZoom / zoomStart;
+			Point mouseCoordinate = new Point(mousePos.X - ViewModel.ViewOffset.X, mousePos.Y - ViewModel.ViewOffset.Y);
+			double horizontalShift = mouseCoordinate.X - (mouseCoordinate.X * zoomDelta);
+			double verticalShift = mouseCoordinate.Y - (mouseCoordinate.Y * zoomDelta);
+			ViewModel.ViewOffset = new Point(ViewModel.ViewOffset.X + horizontalShift, ViewModel.ViewOffset.Y + verticalShift);
+		}
+
+		private void ResetZoom_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			Point mousePos = new Point(NetworkViewContainer.ActualWidth / 2, NetworkViewContainer.ActualHeight / 2);
+			if (e.Parameter != null)
+			{
+
+			}
+			double zoomDelta = 1 / ViewModel.ViewZoom;
+			ViewModel.ViewZoom = 1;
+			Point mouseCoordinate = new Point(mousePos.X - ViewModel.ViewOffset.X, mousePos.Y - ViewModel.ViewOffset.Y);
+			double horizontalShift = mouseCoordinate.X - (mouseCoordinate.X * zoomDelta);
+			double verticalShift = mouseCoordinate.Y - (mouseCoordinate.Y * zoomDelta);
+			ViewModel.ViewOffset = new Point(ViewModel.ViewOffset.X + horizontalShift, ViewModel.ViewOffset.Y + verticalShift);
+		}
+
+		private void AlwaysExecutableCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+		{
+			e.CanExecute = true;
+			e.Handled = true;
+		}
+
+		#endregion Event Handlers
 	}
 }

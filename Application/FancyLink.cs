@@ -1,5 +1,8 @@
-﻿using System;
+﻿using NetworkUI;
+using NetworkVM;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +16,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Utils;
-using NetworkVM;
-using NetworkUI;
 
 namespace EditorApplication
 {
@@ -22,46 +23,93 @@ namespace EditorApplication
 	{
 		#region DependencyProperties
 
+		public static readonly DependencyProperty DestinationHotspotProperty = DependencyProperty.Register(
+			"DestinationHotspot",
+			typeof(Point),
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(DestinationHotspot_PropertyChanged)));
+
+		public static readonly DependencyProperty GhostDestinationHotspotProperty = DependencyProperty.Register(
+			"GhostDestinationHotspot",
+			typeof(Point),
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(GhostDestinationHotspot_PropertyChanged)));
+
+		public static readonly DependencyProperty IsGhostAcceptedProperty = DependencyProperty.Register(
+			"IsGhostAccepted",
+			typeof(bool),
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(IsGhostAccepted_PropertyChanged)));
+
+		public static readonly DependencyProperty IsGhostVisibleProperty = DependencyProperty.Register(
+			"IsGhostVisible",
+			typeof(bool),
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(IsGhostVisible_PropertyChanged)));
+
+		public static readonly DependencyProperty GhostSourceHotspotProperty = DependencyProperty.Register(
+			"GhostSourceHotspot",
+			typeof(Point),
+			typeof(FancyLink),
+			new FrameworkPropertyMetadata(new PropertyChangedCallback(GhostSourceHotspot_PropertyChanged)));
+
 		public static readonly DependencyProperty LinkProperty = DependencyProperty.Register(
 			"Link",
 			typeof(Link),
-			typeof(FancyLink),
-			new FrameworkPropertyMetadata());
-		
+			typeof(FancyLink));
+
 		public static readonly DependencyProperty SourceHotspotProperty = DependencyProperty.Register(
 			"SourceHotspot",
 			typeof(Point),
 			typeof(FancyLink),
 			new FrameworkPropertyMetadata(new PropertyChangedCallback(SourceHotspot_PropertyChanged)));
 
-
-		public static readonly DependencyProperty DestinationHotspotProperty = DependencyProperty.Register(
-			"DestinationHotspot",
-			typeof(Point),
-			typeof(FancyLink),
-			new FrameworkPropertyMetadata(new PropertyChangedCallback(DestinationHotspot_PropertyChanged)));
-		
 		public Link Link
 		{
 			get { return (Link)GetValue(LinkProperty); }
 			set { SetValue(LinkProperty, value); }
 		}
+
 		public Point SourceHotspot
 		{
 			get { return (Point)GetValue(SourceHotspotProperty); }
 			set { SetValue(SourceHotspotProperty, value); }
 		}
+		public Point GhostSourceHotspot
+		{
+			get { return (Point)GetValue(GhostSourceHotspotProperty); }
+			set { SetValue(GhostSourceHotspotProperty, value); }
+		}
+
 		public Point DestinationHotspot
 		{
 			get { return (Point)GetValue(DestinationHotspotProperty); }
 			set { SetValue(DestinationHotspotProperty, value); }
 		}
+		public Point GhostDestinationHotspot
+		{
+			get { return (Point)GetValue(GhostDestinationHotspotProperty); }
+			set { SetValue(GhostDestinationHotspotProperty, value); }
+		}
 
-		private Path PART_Path;
+		public bool IsGhostAccepted
+		{
+			get { return (bool)GetValue(IsGhostAcceptedProperty); }
+			set { SetValue(IsGhostAcceptedProperty, value); }
+		}
+
+		public bool IsGhostVisible
+		{
+			get { return (bool)GetValue(IsGhostVisibleProperty); }
+			set { SetValue(IsGhostVisibleProperty, value); }
+		}
 
 		#endregion DependencyProperties
 
 		#region Properties
+
+		private Path PART_GhostPath;
+		private Path PART_NormalPath;
 
 		#endregion Properties
 
@@ -75,19 +123,46 @@ namespace EditorApplication
 		#endregion Constructor
 
 		#region Methods
+
 		public override void OnApplyTemplate()
 		{
 			base.OnApplyTemplate();
-			PART_Path = (Path)GetTemplateChild("PART_Path");
+			PART_NormalPath = (Path)GetTemplateChild("PART_NormalPath");
+			PART_GhostPath = (Path)GetTemplateChild("PART_GhostPath");
 		}
 
-		public void UpdatePath()
+		private void UpdateGhostPath()
 		{
-			if (PART_Path==null)
+			if (PART_GhostPath == null)
 			{
 				return;
 			}
-			PathGeometry pathGeometry = (PART_Path.Data as PathGeometry) ?? (PathGeometry)(PART_Path.Data = new PathGeometry());
+			PathGeometry pathGeometry = (PART_GhostPath.Data as PathGeometry) ?? (PathGeometry)(PART_GhostPath.Data = new PathGeometry());
+			PathFigureCollection figures = pathGeometry.Figures ?? (pathGeometry.Figures = new PathFigureCollection());
+			figures.Clear();
+			figures.Add(new PathFigure());
+			PathFigure figure = figures[0];
+			figure.Segments = figure.Segments ?? new PathSegmentCollection();
+			figure.Segments.Clear();
+			if (IsGhostVisible)
+			{
+				figure.StartPoint = GhostDestinationHotspot;
+				figure.Segments.Add(new LineSegment(GhostSourceHotspot, IsGhostVisible));
+
+				PART_GhostPath.Stroke = new SolidColorBrush()
+				{
+					Color = (IsGhostAccepted) ? Colors.Lime : Colors.Red,
+				};
+			}
+		}
+
+		private void UpdateNormalPath()
+		{
+			if (PART_NormalPath == null)
+			{
+				return;
+			}
+			PathGeometry pathGeometry = (PART_NormalPath.Data as PathGeometry) ?? (PathGeometry)(PART_NormalPath.Data = new PathGeometry());
 			PathFigureCollection figures = pathGeometry.Figures ?? (pathGeometry.Figures = new PathFigureCollection());
 			figures.Clear();
 			figures.Add(new PathFigure());
@@ -106,12 +181,25 @@ namespace EditorApplication
 			figure.Segments.Add(new QuadraticBezierSegment(sourceControl, halfway, true));
 			figure.Segments.Add(new QuadraticBezierSegment(destinationControl, destinationStart, true));
 
-			Point delta = PointOverload.Delta(DestinationHotspot,SourceHotspot);
+			Point delta = PointExtensions.Delta(DestinationHotspot, SourceHotspot);
 
-			PART_Path.Stroke = new LinearGradientBrush()
+			//The end and starting points need to be within the domain {0,0} to {1,1}
+			Point StrokeStart = new Point(0, 0);
+			Point StrokeEnd = delta.Normalize();
+			if (StrokeEnd.X < 0)
 			{
-				StartPoint = new Point(0, 0),
-				EndPoint = delta.Normalize(),
+				StrokeStart.X = -StrokeEnd.X;
+				StrokeEnd.X = 0;
+			}
+			if (StrokeEnd.Y < 0)
+			{
+				StrokeStart.Y = -StrokeEnd.Y;
+				StrokeEnd.Y = 0;
+			}
+			PART_NormalPath.Stroke = new LinearGradientBrush()
+			{
+				StartPoint = StrokeStart,
+				EndPoint = StrokeEnd,
 				GradientStops =
 				{
 					new GradientStop(Colors.Red, 0),
@@ -125,18 +213,37 @@ namespace EditorApplication
 		#endregion Methods
 
 		#region Event Handlers
-		private static void SourceHotspot_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			(d as FancyLink).UpdatePath();
-		}
+
 		private static void DestinationHotspot_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
-			(d as FancyLink).UpdatePath();
+			(d as FancyLink).UpdateNormalPath();
 		}
+
+		private static void GhostDestinationHotspot_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateGhostPath();
+		}
+
+		private static void GhostSourceHotspot_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateGhostPath();
+		}
+
+		private static void IsGhostAccepted_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateGhostPath();
+		}
+
+		private static void IsGhostVisible_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateGhostPath();
+		}
+
+		private static void SourceHotspot_PropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			(d as FancyLink).UpdateNormalPath();
+		}
+
 		#endregion Event Handlers
-
-		#region Event
-
-		#endregion Event
 	}
 }
