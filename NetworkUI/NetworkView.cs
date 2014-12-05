@@ -149,7 +149,7 @@ namespace NetworkUI
 		private List<object> m_InitialNodeSelection = new List<object>();
 		private LinkItemsControl m_LinkItemsControl = null;
 		private NodeItemsControl m_NodeItemsControl = null;
-
+		private bool m_ForceSelection = false;
 		public object SelectedLink
 		{
 			get
@@ -336,15 +336,27 @@ namespace NetworkUI
 
 		public void SelectAllNodes()
 		{
-			throw new NotImplementedException();
+			foreach(NodeItem node in Nodes)
+			{
+				node.IsSelected = true;
+			}
 		}
 		public void DeselectAllNodes()
 		{
-			throw new NotImplementedException();
+			SelectedNodes.Clear();
 		}
 		public void SelectAllNodesAndLinks()
 		{
-			throw new NotImplementedException();
+			m_ForceSelection = true;
+			SelectAllNodes();
+			m_ForceSelection = false;
+		}
+		public void SelectAllLinks()
+		{
+			foreach (LinkItem link in Connections)
+			{
+				link.IsSelected = true;
+			}
 		}
 		public void DeselectAllLinks()
 		{
@@ -494,18 +506,24 @@ namespace NetworkUI
 		private void PART_Links_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			OnLinkSelectionChanged(new SelectionChangedEventArgs(ListBox.SelectionChangedEvent, e.RemovedItems, e.AddedItems));
-			if (e.AddedItems.Count != 0)
+			if (!m_ForceSelection)
 			{
-				SelectedNodes.Clear();
+				if (e.AddedItems.Count != 0)
+				{
+					DeselectAllNodes();
+				}
 			}
 		}
 
 		private void PART_Nodes_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			OnNodeSelectionChanged(new SelectionChangedEventArgs(ListBox.SelectionChangedEvent, e.RemovedItems, e.AddedItems));
-			if (e.AddedItems.Count != 0)
+			if (!m_ForceSelection)
 			{
-				SelectedLinks.Clear();
+				if (e.AddedItems.Count != 0)
+				{
+					DeselectAllLinks();
+				}
 			}
 		}
 

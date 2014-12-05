@@ -66,13 +66,17 @@ namespace EditorApplication.Processors
 		public BurstGenerator(Pipeline pipeline)
 			: base(pipeline)
 		{
-			m_Input = new InputChannel(this) { Name = "Trigger" };
-			m_Output = new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
 		}
 
 		#endregion Constructor
 
 		#region Methods
+		public override void Rebuild()
+		{
+			base.Rebuild();
+			m_Input = GetInputChannel("Trigger") ?? new InputChannel(this) { Name = "Trigger" };
+			m_Output = GetOutputChannel("Out") ?? new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
+		}
 		public override void Process()
 		{
 			//Read, so data won't infinitly trigger a process call whenever the first object comes in

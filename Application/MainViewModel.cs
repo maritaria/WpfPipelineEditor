@@ -13,6 +13,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Threading;
+using SWF = System.Windows.Forms;
 using Utils;
 
 namespace EditorApplication
@@ -23,6 +24,36 @@ namespace EditorApplication
 
 		private Pipeline m_Pipeline = new Pipeline();
 		private UniqueObservableList<TypeInfo> m_ProcessorTypes = new UniqueObservableList<TypeInfo>();
+
+		private bool m_IsSaved = false;
+		public bool IsSaved
+		{
+			get
+			{
+				return m_IsSaved;
+			}
+			set
+			{
+				OnPropertyChanging("IsSaved");
+				m_IsSaved = value;
+				OnPropertyChanged("IsSaved");
+			}
+		}
+
+		private string m_FilePath = null;
+		public string FilePath
+		{
+			get
+			{
+				return m_FilePath;
+			}
+			set
+			{
+				OnPropertyChanging("FilePath");
+				m_FilePath = value;
+				OnPropertyChanged("FilePath");
+			}
+		}
 
 		public Pipeline Pipeline
 		{
@@ -102,6 +133,94 @@ namespace EditorApplication
 
 				Console.WriteLine("Done");
 			}, null);
+		}
+
+		public void LoadFile(string path)
+		{
+			if (IsSaved || ConfirmNoSave())
+			{
+				//Load file
+				FileStream fs = null;
+				try
+				{
+					XmlSerializer s = new XmlSerializer(Pipeline.GetType());
+					fs = new FileStream(path, FileMode.Open);
+					Pipeline = s.Deserialize(fs) as Pipeline;
+					FilePath = path;
+					IsSaved = true;
+				}
+				catch(Exception e)
+				{
+					MessageBox.Show(e.ToString());
+				}
+				finally
+				{
+					if (fs !=null)
+					{
+						fs.Close();
+					}
+				}
+			}
+		}
+		public bool ConfirmNoSave()
+		{
+			var result = MessageBox.Show("Do you want to save?", "Unsaved changes", MessageBoxButton.YesNoCancel);
+			if (result == MessageBoxResult.Yes)
+			{
+				return SaveFile();
+			}
+			return result == MessageBoxResult.No;
+		}
+		public bool SaveFile()
+		{
+			if (FilePath != null && FilePath != "")
+			{
+				SaveFile(FilePath);
+				return true;
+			}
+			FilePath = AskFilePath();
+			return (FilePath != null) ? SaveFile() : false;
+		}
+		public void SaveFile(string path)
+		{
+			//Write to file
+			FileStream fs = null;
+			try
+			{
+				XmlSerializer s = new XmlSerializer(Pipeline.GetType());
+				fs = new FileStream(path, FileMode.Create);
+				s.Serialize(fs, Pipeline);
+				FilePath = path;
+			}
+			catch(Exception e)
+			{
+				MessageBox.Show(e.ToString());
+			}
+			finally
+			{
+				if (fs!=null)
+				{
+					fs.Close();
+				}
+			}
+		}
+		public string AskFilePath()
+		{
+			var dialog = new SWF.SaveFileDialog();
+			dialog.DefaultExt = ".pipe.xml";
+			if (dialog.ShowDialog() == SWF.DialogResult.OK)
+			{
+				return dialog.FileName;
+			}
+			return null;
+		}
+		public void SaveFileAs()
+		{
+			string s = AskFilePath();
+			if (s != null)
+			{
+				SaveFile(s);
+			}
 		}
 
 		#endregion Methods

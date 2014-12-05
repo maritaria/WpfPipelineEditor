@@ -50,6 +50,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="system.windows.controls.ribbon" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -157,9 +158,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\SaveFileIcon.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\save2.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +174,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\reset.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\heartbeat.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\pause.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\shrink.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -80,6 +80,7 @@ namespace PipelineVM
 
 		public void Write(object data)
 		{
+#warning TODO: First write data to channels, then give them a process pulse
 			if (AcceptsType(data.GetType()))
 			{
 				foreach (Link link in this.Links)
@@ -123,7 +124,7 @@ namespace PipelineVM
 		public virtual void ReadXml(XmlReader reader)
 		{
 			Indentifier = Guid.Parse(reader.GetAttribute("ID"));
-			Name = reader.GetAttribute("Name") ?? "Missing name";
+			Name = reader.GetAttribute("Name") ?? "Missing attribute";
 			if (!reader.IsEmptyElement)
 			{
 				reader.Read();//Consume starting tag

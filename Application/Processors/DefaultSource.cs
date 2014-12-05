@@ -12,6 +12,10 @@ namespace EditorApplication.Processors
 	{
 		public DefaultSource(Pipeline pipeline) : base(pipeline)
 		{
+		}
+		public override void Rebuild()
+		{
+			base.Rebuild();
 			new InputChannel(this) { Name = "A" };
 		}
 		public override void Process()

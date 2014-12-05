@@ -24,7 +24,11 @@
 			<RoutedUICommand x:Key="StartSimulation"/>
 			<RoutedUICommand x:Key="PauseSimulation"/>
 			<RoutedUICommand x:Key="StopSimulation"/>
-			
+
+			<RoutedUICommand x:Key="SaveFile"/>
+			<RoutedUICommand x:Key="SaveFileAs"/>
+			<RoutedUICommand x:Key="LoadFile"/>
+
 			<RoutedUICommand x:Key="ResetZoom"/>
 
 			<DataTemplate	DataType="{x:Type NetworkVM:Connector}">
@@ -196,7 +200,7 @@
 				</Setter>
 			</Style>
 			
-			<RibbonGroupSizeDefinitionBaseCollection x:Key="AllowCollapsible">
+			<RibbonGroupSizeDefinitionBaseCollection x:Key="DefaultLayout">
 				<RibbonGroupSizeDefinition>
 					<RibbonGroupSizeDefinition.ControlSizeDefinitions>
 						<RibbonControlSizeDefinition ImageSize="Large" IsLabelVisible="True"/>
@@ -206,7 +210,14 @@
 					</RibbonGroupSizeDefinition.ControlSizeDefinitions>
 				</RibbonGroupSizeDefinition>
 			</RibbonGroupSizeDefinitionBaseCollection>
-			
+
+			<Style TargetType="RibbonButton">
+				<Setter Property="SmallImageSource" Value="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
+			</Style>
+			<Style TargetType="RibbonSplitButton">
+				<Setter Property="SmallImageSource" Value="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
+			</Style>
+
 		</ResourceDictionary>
 		
 	</Window.Resources>
@@ -226,6 +237,11 @@
 		
 		<!-- Processor commands -->
 		<CommandBinding Command="{StaticResource Processor_ForceProcess}" Executed="Processor_ForceProcess_Executed"/>
+		
+		<!-- File commands -->
+		<CommandBinding Command="{StaticResource SaveFile}" Executed="SaveFile_Executed"/>
+		<CommandBinding Command="{StaticResource SaveFileAs}" Executed="SaveFileAs_Executed"/>
+		<CommandBinding Command="{StaticResource LoadFile}" Executed="LoadFile_Executed"/>
 		
 		<!-- Other commands -->
 		<CommandBinding Command="{StaticResource ResetZoom}" Executed="ResetZoom_Executed"/>
@@ -262,27 +278,32 @@
 
 	<DockPanel>
 		<Ribbon DockPanel.Dock="Top">
+			<Ribbon.ApplicationMenu>
+				<!-- Hides the (blue) application menu-->
+				<RibbonApplicationMenu Visibility="Collapsed"/>
+			</Ribbon.ApplicationMenu>
 			<RibbonTab Header="Main">
-				<RibbonGroup Header="File" GroupSizeDefinitions="{StaticResource AllowCollapsible}">
-					<RibbonButton Label="Load" LargeImageSource="pack://application:,,,/Resources/folder.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
-					<RibbonButton Label="Save" LargeImageSource="pack://application:,,,/Resources/save1.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}"/>
-					<RibbonButton Label="Save as" LargeImageSource="pack://application:,,,/Resources/save2.ico" SmallImageSource="{Binding LargeImageSource, RelativeSource={RelativeSource Self}}" />
+				<RibbonGroup Header="File" GroupSizeDefinitions="{StaticResource DefaultLayout}">
+					<RibbonButton Label="Save" LargeImageSource="pack://application:,,,/Resources/save1.ico" Command="{StaticResource SaveFile}"/>
+					<RibbonButton Label="Save as" LargeImageSource="pack://application:,,,/Resources/save2.ico" Command="{StaticResource SaveFileAs}"/>
+					<RibbonButton Label="Load" LargeImageSource="pack://application:,,,/Resources/folder.ico" Command="{StaticResource LoadFile}"/>
 				</RibbonGroup>
-				<RibbonGroup Header="Simulation">
-					<RibbonSplitButton Label="{Binding Path=Pipeline.Status}">
-						<RibbonSplitButton.Items>
-							<RibbonMenuItem Header="Run" Command="{StaticResource StartSimulation}"/>
-							<RibbonMenuItem Header="Pause" Command="{StaticResource PauseSimulation}"/>
-							<RibbonMenuItem Header="Stop" Command="{StaticResource StopSimulation}"/>
-						</RibbonSplitButton.Items>
-					</RibbonSplitButton>
+				<RibbonGroup Header="Simulation" GroupSizeDefinitions="{StaticResource DefaultLayout}">
+					<RibbonButton Label="Run" LargeImageSource="pack://application:,,,/Resources/play.ico" Command="{StaticResource StartSimulation}"/>
+					<RibbonButton Label="Pause" LargeImageSource="pack://application:,,,/Resources/pause.ico" Command="{StaticResource PauseSimulation}"/>
+					<RibbonButton Label="Stop/Reset" LargeImageSource="pack://application:,,,/Resources/stop.ico" Command="{StaticResource StopSimulation}"/>
+					<RibbonButton Label="{Binding Path=Pipeline.Status}" LargeImageSource="pack://application:,,,/Resources/heartbeat.ico">
+						<RibbonButton.ToolTip>
+							<ToolTip Content="Simulation status"/>
+						</RibbonButton.ToolTip>
+					</RibbonButton>
 				</RibbonGroup>
-				<RibbonGroup Header="Zoom">
-					<RibbonButton Label="Restore" Command="{StaticResource ResetZoom}"/>
+				<RibbonGroup Header="View" GroupSizeDefinitions="{StaticResource DefaultLayout}">
+					<RibbonButton Label="Restore" LargeImageSource="pack://application:,,,/Resources/shrink.ico" Command="{StaticResource ResetZoom}"/>
 				</RibbonGroup>
 			</RibbonTab>
 		</Ribbon>
-		<Button DockPanel.Dock="Bottom" Height="23" Click="Button_Click"/>
+		<Button DockPanel.Dock="Bottom" Height="23" Click="Button_Click" Visibility="Hidden"/>
 		<Border	x:Name="NetworkViewContainer"
 				Background="Transparent"
 				ClipToBounds="True"
@@ -304,10 +325,10 @@
 									EndpointLinkFeedbackQuery="NetworkView_EndpointLinkFeedbackQuery"
 									EndpointLinkFeedbackResult="NetworkView_EndpointLinkFeedbackResult">
 				<NetworkUI:NetworkView.RenderTransform>
-					<TranslateTransform X="{Binding ViewOffset.X}" Y="{Binding ViewOffset.Y}"/>
+					<TranslateTransform X="{Binding Pipeline.ViewOffset.X}" Y="{Binding Pipeline.ViewOffset.Y}"/>
 				</NetworkUI:NetworkView.RenderTransform>
 				<NetworkUI:NetworkView.LayoutTransform>
-					<ScaleTransform ScaleX="{Binding ViewZoom}" ScaleY="{Binding ViewZoom}"/>
+					<ScaleTransform ScaleX="{Binding Pipeline.ViewZoom}" ScaleY="{Binding ScaleX, RelativeSource={RelativeSource Self}}"/>
 				</NetworkUI:NetworkView.LayoutTransform>
 			</NetworkUI:NetworkView>
 		</Border>

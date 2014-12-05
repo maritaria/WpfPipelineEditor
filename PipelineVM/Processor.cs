@@ -58,11 +58,61 @@ namespace PipelineVM
 		{
 			InputConnectors.CollectionChanged += InputConnectors_CollectionChanged;
 			Indentifier = Guid.NewGuid();
+			Rebuild();
 		}
 
 		#endregion Constructor
 
 		#region Methods
+		public virtual void Rebuild()
+		{
+
+		}
+
+		protected virtual InputChannel GetInputChannel(string name)
+		{
+			foreach (InputChannel channel in InputConnectors)
+			{
+				if (channel.Name == name)
+				{
+					return channel;
+				}
+			}
+			return null;
+		}
+		protected virtual InputChannel GetInputChannel(Guid indentifier)
+		{
+			foreach (InputChannel channel in InputConnectors)
+			{
+				if (channel.Indentifier.Equals(indentifier))
+				{
+					return channel;
+				}
+			}
+			return null;
+		}
+		protected virtual OutputChannel GetOutputChannel(string name)
+		{
+			foreach (OutputChannel channel in OutputConnectors)
+			{
+				if (channel.Name == name)
+				{
+					return channel;
+				}
+			}
+			return null;
+		}
+		protected virtual OutputChannel GetOutputChannel(Guid indentifier)
+		{
+			foreach (OutputChannel channel in OutputConnectors)
+			{
+				if (channel.Indentifier.Equals(indentifier))
+				{
+					return channel;
+				}
+			}
+			return null;
+		}
 
 		#endregion Methods
 
@@ -361,9 +411,17 @@ namespace PipelineVM
 
 		public virtual void ReadXml(XmlReader reader)
 		{
+			ActualReadXml(reader);
+			Rebuild();
+		}
+
+		protected virtual void ActualReadXml(XmlReader reader)
+		{
 			Indentifier = Guid.Parse(reader.GetAttribute("ID"));
+			Name = reader.GetAttribute("Name") ?? "Missing attribute";
 			X = double.Parse(reader.GetAttribute("X") ?? "0");
 			Y = double.Parse(reader.GetAttribute("Y") ?? "0");
+
 			//Width = double.Parse(reader.GetAttribute("Width") ?? "NaN");//NaN = autosize
 			//Height = double.Parse(reader.GetAttribute("Height") ?? "NaN");
 			if (!reader.IsEmptyElement)
@@ -376,6 +434,7 @@ namespace PipelineVM
 				}
 			}
 		}
+
 		protected virtual void ReadChannels(XmlReader reader)
 		{
 			InputConnectors.Clear();
@@ -403,6 +462,7 @@ namespace PipelineVM
 		{
 			writer.WriteAttributeString("FullName", GetType().AssemblyQualifiedName);
 			writer.WriteAttributeString("ID", Indentifier.ToString());
+			writer.WriteAttributeString("Name", Name);
 			writer.WriteAttributeString("X", Math.Round(X).ToString());
 			writer.WriteAttributeString("Y", Math.Round(Y).ToString());
 #warning TODO: Store width and height in node

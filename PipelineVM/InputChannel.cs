@@ -204,7 +204,7 @@ namespace PipelineVM
 		public virtual void ReadXml(XmlReader reader)
 		{
 			Indentifier = Guid.Parse(reader.GetAttribute("ID"));
-			Name = reader.GetAttribute("Name") ?? "Missing name";
+			Name = reader.GetAttribute("Name") ?? "Missing attribute";
 			if (!reader.IsEmptyElement)
 			{
 				reader.Read();//Consume starting tag

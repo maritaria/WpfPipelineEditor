@@ -143,6 +143,22 @@ namespace EditorApplication
 			ViewModel.CreateProcessor(pType, pos);
 		}
 
+		private void SaveFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.SaveFile();
+		}
+		private void SaveFileAs_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			ViewModel.SaveFileAs();
+		}
+		private void LoadFile_Executed(object sender, ExecutedRoutedEventArgs e)
+		{
+			//string s = ViewModel.AskFilePath(true);
+			//if (s != null)
+			{
+			//	ViewModel.LoadFile(s);
+			}
+		}
 		private void DeleteLink_Executed(object sender, ExecutedRoutedEventArgs e)
 		{
 			ViewModel.Pipeline.DeleteSelectedLinks();
@@ -413,5 +429,6 @@ namespace EditorApplication
 		}
 
 		#endregion Event Handlers
+
 	}
 }

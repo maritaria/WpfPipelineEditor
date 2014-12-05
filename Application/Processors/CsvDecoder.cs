@@ -60,11 +60,14 @@ namespace EditorApplication.Processors
 		#region Constructor
 		public CsvDecoder(Pipeline pipeline) : base(pipeline)
 		{
-			m_Input = new InputChannel(this) { Name = "Characters", AcceptedTypes = { typeof(char), typeof(IEnumerable<char>) } };
-			
 		}
 		#endregion
 		#region Methods
+		public override void Rebuild()
+		{
+			base.Rebuild();
+			m_Input = GetInputChannel("Characters")?? new InputChannel(this) { Name = "Characters", AcceptedTypes = { typeof(char), typeof(IEnumerable<char>) } };
+		}
 		public override void Process()
 		{
 			object o = m_Input.Read();

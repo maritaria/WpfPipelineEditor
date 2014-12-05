@@ -14,6 +14,7 @@ namespace EditorApplication.Processors
 	{
 		#region Properties
 		protected OutputChannel Out;
+		protected InputChannel In;
 		private SerialPort m_SerialPort;
 		public SerialPort SerialPort
 		{
@@ -47,14 +48,18 @@ namespace EditorApplication.Processors
 		public SerialProcessorBase(Pipeline pipeline)
 			: base(pipeline)
 		{
-			Out = new OutputChannel(this) { Name = "Bytes" };
 			SerialPort = new SerialPort();
 		}
 
 		#endregion Constructor
 
 		#region Methods
-
+		public override void Rebuild()
+		{
+			base.Rebuild();
+			Out = GetOutputChannel("Bytes") ?? new OutputChannel(this) { Name = "Bytes" };
+			In = GetInputChannel("Device") ?? new InputChannel(this) { Name = "Device" };
+		}
 		public override void Prepare()
 		{
 			base.Prepare();

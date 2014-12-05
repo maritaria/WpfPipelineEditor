@@ -24,15 +24,18 @@ namespace EditorApplication.Processors
 		public AddProcessor(Pipeline pipeline)
 			: base(pipeline)
 		{
-			m_InputA = new InputChannel(this) { Name = "A", AcceptedTypes = { typeof(IConvertible) } };
-			m_InputB = new InputChannel(this) { Name = "B", AcceptedTypes = { typeof(IConvertible) } };
-			m_Output = new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
 		}
 
 		#endregion Constructor
 
 		#region Methods
-
+		public override void Rebuild()
+		{
+			base.Rebuild();
+			m_InputA = GetInputChannel("A") ?? new InputChannel(this) { Name = "A", AcceptedTypes = { typeof(IConvertible) } };
+			m_InputB = GetInputChannel("B") ?? new InputChannel(this) { Name = "B", AcceptedTypes = { typeof(IConvertible) } };
+			m_Output = GetOutputChannel("Out") ?? new OutputChannel(this) { Name = "Out", OutputTypes = { typeof(double) } };
+		}
 		public override void Process()
 		{
 			//Since they are convertible, convert them to doubles, which is sufficient for most cases.
