@@ -131,19 +131,15 @@ namespace PipelineVM
 				OutputChannel channel = otherSide as OutputChannel;
 				if (channel.OutputTypes.Count == 0)
 				{
-					return true;
+					return base.AllowConnection(otherSide);
 				}
 				foreach(Type t in AcceptedTypes)
 				{
-					if (t==typeof(string))
-					{
-
-					}
 					foreach(Type at in channel.OutputTypes)
 					{
 						if (t.IsAssignableFrom(at))
 						{
-							return true;
+							return base.AllowConnection(otherSide);
 						}
 					}
 				}
