@@ -108,6 +108,7 @@ namespace NetworkUI
 				m_DragStartingPos = m_PreviousMousePos;
 				m_IsLeftMouseDown = true;
 				e.Handled = true;
+				CaptureMouse();
 			}
 			else if (e.ChangedButton == MouseButton.Right)
 			{
@@ -158,7 +159,6 @@ namespace NetworkUI
 						m_IsDragging = true;
 						e.Handled = true;
 					}
-					CaptureMouse();
 				}
 			}
 		}
@@ -188,9 +188,9 @@ namespace NetworkUI
 						}
 					}
 					m_IsLeftMouseDown = false;
-					ReleaseMouseCapture();
 					e.Handled = true;
 				}
+				ReleaseMouseCapture();
 			}
 		}
 
