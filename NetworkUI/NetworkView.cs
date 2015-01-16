@@ -336,9 +336,10 @@ namespace NetworkUI
 
 		public void SelectAllNodes()
 		{
-			foreach(NodeItem node in Nodes)
+			foreach(var node in Nodes)
 			{
-				node.IsSelected = true;
+				NodeItem nodeItem = FindAssociatedNodeItem(node);
+				nodeItem.IsSelected = true;
 			}
 		}
 		public void DeselectAllNodes()
@@ -353,9 +354,10 @@ namespace NetworkUI
 		}
 		public void SelectAllLinks()
 		{
-			foreach (LinkItem link in Connections)
+			foreach (var node in Connections)
 			{
-				link.IsSelected = true;
+				NodeItem linkItem = FindAssociatedNodeItem(node);
+				linkItem.IsSelected = true;
 			}
 		}
 		public void DeselectAllLinks()
