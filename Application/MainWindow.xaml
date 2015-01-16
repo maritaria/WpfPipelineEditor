@@ -303,7 +303,7 @@
 				</RibbonGroup>
 			</RibbonTab>
 		</Ribbon>
-		<Button DockPanel.Dock="Bottom" Height="23" Click="Button_Click" Visibility="Hidden"/>
+		<Button DockPanel.Dock="Bottom" Height="23" Click="Button_Click" Visibility="Collapsed"/>
 		<Border	x:Name="NetworkViewContainer"
 				Background="Transparent"
 				ClipToBounds="True"
