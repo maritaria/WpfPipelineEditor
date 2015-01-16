@@ -101,6 +101,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Processors\CosineProcessor.cs" />
     <Compile Include="Processors\AddProcessor.cs" />
     <Compile Include="Processors\BurstGenerator.cs" />
     <Compile Include="Processors\ConstantSource.cs" />
